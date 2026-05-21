@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperMart — The Smartest Way to Run Your Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070F;--surf:#0F0F1A;--surf-alt:#18181F;--border:#2A2A35;
+  --accent:#6C63FF;--alt:#00D4AA;--danger:#FF4D6D;--warn:#FFB547;
+  --text:#F0F0F5;--muted:#6B6B80;
+  --mono:'JetBrains Mono',monospace;
+  --r:1rem;
+}
+html{scroll-behavior:smooth;cursor:none}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;
+  overflow-x:hidden;position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.6;
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── CURSOR ── */
+#cursor{position:fixed;width:10px;height:10px;background:var(--alt);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .15s;mix-blend-mode:difference}
+#cursor.big{width:36px;height:36px;background:transparent;border:2px solid var(--alt)}
+.trail-dot{position:fixed;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%)}
+
+/* ── SCROLL PROGRESS ── */
+#scroll-progress{
+  position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);
+  z-index:900;display:flex;flex-direction:column;align-items:center;gap:.5rem;
+}
+#scroll-progress .sp-label{font-family:var(--mono);font-size:.55rem;color:var(--muted);writing-mode:vertical-rl;letter-spacing:.1em}
+#scroll-bar-track{width:3px;height:120px;background:var(--border);border-radius:4px;position:relative}
+#scroll-bar-fill{width:100%;background:linear-gradient(180deg,var(--accent),var(--alt));border-radius:4px;transition:height .1s;position:absolute;top:0}
+
+/* ── LIVE TICKER ── */
+#live-ticker{
+  position:fixed;bottom:0;left:0;right:0;z-index:800;
+  background:rgba(7,7,15,.92);border-top:1px solid var(--border);
+  padding:.4rem 0;overflow:hidden;backdrop-filter:blur(12px);
+}
+#ticker-inner{display:flex;gap:2rem;white-space:nowrap;animation:ticker 30s linear infinite}
+.tick-item{font-family:var(--mono);font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.tick-dot{width:6px;height:6px;background:var(--alt);border-radius:50%;animation:pulse2 1.5s ease-in-out infinite}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* ── LOADING SCREEN ── */
+#loading{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:opacity .6s, transform .6s;
+}
+#loading.hide{opacity:0;transform:translateY(-100%);pointer-events:none}
+.load-logo{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--text);margin-bottom:2rem;display:flex;align-items:center;gap:.6rem}
+.load-logo span{color:var(--accent)}
+.terminal-box{
+  background:rgba(15,15,26,.95);border:1px solid var(--border);border-radius:.75rem;
+  padding:1.5rem 2rem;min-width:480px;max-width:90vw;
+  font-family:var(--mono);font-size:.8rem;
+  box-shadow:0 0 60px rgba(108,99,255,.15);
+}
+.t-line{color:var(--alt);margin-bottom:.35rem;opacity:0;transform:translateX(-8px);transition:opacity .3s,transform .3s}
+.t-line.show{opacity:1;transform:translateX(0)}
+.t-line .dim{color:var(--muted)}
+.t-line .ok{color:var(--alt)}
+.t-line .val{color:var(--warn)}
+.progress-row{margin-top:1rem;color:var(--text)}
+.prog-bar{display:inline-block;width:200px;height:8px;background:var(--border);border-radius:4px;vertical-align:middle;margin:0 .5rem;overflow:hidden;position:relative}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--alt));border-radius:4px;transition:width .05s}
+.cursor-blink{display:inline-block;width:2px;height:1em;background:var(--alt);vertical-align:text-bottom;animation:blink .7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.emoji-burst{position:absolute;pointer-events:none;font-size:1.8rem;animation:emojiFloat 1.8s ease-out forwards}
+@keyframes emojiFloat{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--ex),var(--ey)) scale(.3)}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:700;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 3rem;
+  background:rgba(7,7,15,.7);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(42,42,53,.5);
+  transition:opacity .5s;
+}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:.4rem}
+.nav-logo .dot{color:var(--accent)}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{font-size:.85rem;color:var(--muted);text-decoration:none;position:relative;transition:color .2s}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--accent);transition:width .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{background:var(--accent);color:#fff;font-size:.8rem;font-weight:600;padding:.45rem 1.1rem;border-radius:6px;text-decoration:none;transition:box-shadow .2s,transform .2s}
+.nav-cta:hover{box-shadow:0 0 20px rgba(108,99,255,.5);transform:translateY(-1px)}
+
+/* ── SECTIONS ── */
+section{position:relative;z-index:1}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;text-align:center;padding:8rem 2rem 6rem;
+  overflow:hidden;
+}
+.hero-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18}
+.hero-orb.v{width:600px;height:600px;background:var(--accent);top:-200px;left:-100px;animation:orbDrift 12s ease-in-out infinite}
+.hero-orb.m{width:400px;height:400px;background:var(--alt);bottom:-150px;right:-80px;animation:orbDrift 15s ease-in-out infinite reverse}
+@keyframes orbDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+.float-debris{position:absolute;pointer-events:none;font-size:1rem;color:rgba(108,99,255,.25);animation:debris var(--dur,20s) linear infinite;font-family:var(--mono)}
+@keyframes debris{0%{transform:translate(0,0) rotate(0deg);opacity:.1}50%{opacity:.3}100%{transform:translate(var(--dx,20px),var(--dy,-400px)) rotate(var(--dr,180deg));opacity:0}}
+
+.hero-eyebrow{font-family:var(--mono);font-size:.7rem;color:var(--alt);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;opacity:0;animation:fadeUp .6s .5s ease forwards}
+.hero-h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,7vw,6rem);font-weight:800;line-height:1;margin-bottom:1rem;overflow:hidden}
+.hero-h1 .line{display:block;opacity:0;transform:translateX(-60px);transition:opacity .7s,transform .7s}
+.hero-h1 .line:nth-child(2){transform:translateX(60px)}
+.hero-h1 .line.show{opacity:1;transform:translateX(0)}
+.hero-h1 .acc{color:var(--accent)}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:560px;margin:0 auto 2.5rem;opacity:0;animation:fadeUp .7s 1.2s ease forwards;line-height:1.7}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+
+.hero-terminal{
+  background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
+  padding:1.2rem 1.5rem;max-width:500px;width:100%;text-align:left;
+  font-family:var(--mono);font-size:.75rem;margin:0 auto 2.5rem;
+  box-shadow:0 0 40px rgba(108,99,255,.12);
+  opacity:0;animation:fadeUp .7s 1.5s ease forwards;
+}
+.ht-line{margin-bottom:.3rem;color:var(--muted)}
+.ht-line .cmd{color:var(--alt)}
+.ht-line .flag{color:var(--accent)}
+.ht-line .ok{color:var(--alt)}
+.ht-line .rev{color:var(--warn);font-weight:600}
+
+.hero-btns{display:flex;gap:1rem;justify-content:center;opacity:0;animation:fadeUp .7s 1.8s ease forwards;flex-wrap:wrap}
+.btn-primary{
+  background:var(--accent);color:#fff;font-weight:600;font-size:.9rem;
+  padding:.75rem 1.8rem;border-radius:8px;text-decoration:none;
+  border:none;cursor:none;
+  animation:levitate 3s ease-in-out infinite;
+  box-shadow:0 4px 30px rgba(108,99,255,.4);
+  transition:box-shadow .2s;
+}
+.btn-primary:hover{box-shadow:0 6px 50px rgba(108,99,255,.7)}
+.btn-ghost{
+  background:transparent;color:var(--text);font-size:.9rem;font-weight:500;
+  padding:.75rem 1.8rem;border-radius:8px;border:1px solid var(--border);
+  text-decoration:none;cursor:none;
+  animation:ghostPulse 3s ease-in-out infinite 1.5s;
+  transition:border-color .2s,color .2s;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+@keyframes levitate{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes ghostPulse{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0)}50%{box-shadow:0 0 20px rgba(108,99,255,.2)}}
+
+/* ── REVEAL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .7s,transform .7s}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .7s,transform .7s}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+
+/* ── SECTION COMMON ── */
+.section-pad{padding:7rem 2rem}
+.section-center{max-width:1100px;margin:0 auto}
+.section-eyebrow{font-family:var(--mono);font-size:.65rem;color:var(--alt);letter-spacing:.25em;text-transform:uppercase;margin-bottom:1rem}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem}
+.section-sub{color:var(--muted);max-width:540px;line-height:1.7}
+.accent-text{color:var(--accent)}
+.alt-text{color:var(--alt)}
+.divider{width:60px;height:3px;background:linear-gradient(90deg,var(--accent),var(--alt));border-radius:4px;margin:1.5rem 0}
+
+/* ── PROBLEM ── */
+#problem{background:linear-gradient(180deg,var(--bg),var(--surf) 50%,var(--bg))}
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:3rem 0}
+.pain-card{
+  background:var(--surf-alt);border:1px solid var(--border);border-radius:.75rem;
+  padding:2rem;position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s;
+}
+.pain-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.pain-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--danger),transparent)}
+.pain-emoji{font-size:2.5rem;margin-bottom:1rem}
+.pain-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--danger);margin-bottom:.5rem}
+.pain-card p{font-size:.85rem;color:var(--muted);line-height:1.6}
+.pain-cta{text-align:center;margin-top:2rem;font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700}
+
+/* ── FEATURES ── */
+#features{background:var(--bg)}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem}
+.feat-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
+  padding:2rem;position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+}
+.feat-card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,.5);border-color:var(--accent)}
+.feat-icon{font-size:2.5rem;margin-bottom:1.2rem;display:inline-block;animation:bob var(--bob,3s) ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.feat-card h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.5rem}
+.feat-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+.feat-tag{display:inline-block;font-family:var(--mono);font-size:.6rem;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:.15rem .5rem;margin-top:.75rem;opacity:.7}
+
+/* ── HOW IT WORKS ── */
+#how{background:linear-gradient(180deg,var(--bg),var(--surf) 50%,var(--bg))}
+.steps-row{display:flex;gap:0;margin-top:3rem;position:relative;flex-wrap:wrap;justify-content:center}
+.step-card{
+  flex:1;min-width:200px;max-width:320px;
+  background:var(--surf-alt);border:1px solid var(--border);border-radius:.75rem;
+  padding:2rem;text-align:center;position:relative;
+  transition:transform .3s;
+}
+.step-card:nth-child(2){transform:translateY(20px)}
+.step-card:hover{transform:translateY(-6px)!important}
+.step-num{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.15em;margin-bottom:.75rem}
+.step-icon{font-size:2.8rem;margin-bottom:1rem}
+.step-card h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.6rem}
+.step-card p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.step-arrow{
+  display:flex;align-items:center;justify-content:center;
+  color:var(--accent);font-size:1.2rem;padding:1rem;
+  align-self:center;
+}
+
+/* ── DASHBOARD PREVIEW ── */
+#dashboard{
+  background:var(--bg);
+  text-align:center;
+}
+.dash-wrap{
+  position:relative;display:inline-block;margin-top:3rem;
+  animation:dashFloat 6s ease-in-out infinite;
+  filter:drop-shadow(0 0 60px rgba(108,99,255,.25));
+  max-width:900px;width:100%;
+}
+@keyframes dashFloat{0%,100%{transform:perspective(1200px) rotateX(4deg) rotateY(-3deg)}50%{transform:perspective(1200px) rotateX(2deg) rotateY(3deg)}}
+.dash-mock{
+  background:var(--surf);border:1px solid var(--border);border-radius:1rem;
+  overflow:hidden;font-family:var(--mono);font-size:.7rem;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.dash-topbar{background:var(--surf-alt);padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border)}
+.dash-dot{width:10px;height:10px;border-radius:50%}
+.dash-title-bar{font-size:.65rem;color:var(--muted);margin-left:.5rem}
+.dash-body{display:flex}
+.dash-sidebar{
+  width:140px;background:rgba(15,15,26,.8);padding:1rem .75rem;
+  border-right:1px solid var(--border);display:flex;flex-direction:column;gap:.4rem;
+  flex-shrink:0;
+}
+.dash-nav-item{
+  padding:.4rem .6rem;border-radius:6px;font-size:.65rem;color:var(--muted);
+  display:flex;align-items:center;gap:.4rem;
+}
+.dash-nav-item.active{background:rgba(108,99,255,.15);color:var(--accent)}
+.dash-main{flex:1;padding:1rem;min-height:260px}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.8rem}
+.kpi-card{
+  background:var(--surf-alt);border:1px solid var(--border);border-radius:6px;
+  padding:.6rem;
+}
+.kpi-label{font-size:.55rem;color:var(--muted);margin-bottom:.2rem}
+.kpi-val{font-size:.9rem;font-weight:600;color:var(--text)}
+.kpi-val .up{color:var(--alt);font-size:.6rem}
+.dash-charts{display:grid;grid-template-columns:2fr 1fr;gap:.6rem}
+.chart-box{background:var(--surf-alt);border:1px solid var(--border);border-radius:6px;padding:.6rem;height:90px;position:relative;overflow:hidden}
+.chart-label{font-size:.55rem;color:var(--muted);margin-bottom:.3rem}
+.sparkline{position:absolute;bottom:0;left:0;right:0;height:55px}
+.pie-chart{width:60px;height:60px;border-radius:50%;margin:0 auto;background:conic-gradient(var(--accent) 0 55%,var(--alt) 55% 78%,var(--warn) 78% 100%)}
+.dash-annotation{
+  position:absolute;background:var(--surf);border:1px solid var(--accent);
+  border-radius:6px;padding:.3rem .6rem;font-family:var(--mono);font-size:.55rem;
+  color:var(--accent);white-space:nowrap;
+  animation:annPulse 2.5s ease-in-out infinite;
+}
+@keyframes annPulse{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0)}50%{box-shadow:0 0 12px rgba(108,99,255,.4)}}
+.ann-arrow{color:var(--accent);font-size:.8rem}
+.dash-caption{margin-top:2rem;color:var(--muted);font-family:var(--mono);font-size:.8rem}
+
+/* ── AI SPOTLIGHT ── */
+#ai-spot{
+  background:var(--bg);position:relative;overflow:hidden;
+}
+#ai-spot::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle at 1px 1px,rgba(108,99,255,.08) 1px,transparent 0);
+  background-size:32px 32px;
+}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.ai-card{
+  background:var(--surf);border:1px solid var(--accent);border-radius:.75rem;
+  padding:1.8rem;font-family:var(--mono);font-size:.78rem;
+  animation:aiGlow 3s ease-in-out infinite;
+  position:relative;
+}
+@keyframes aiGlow{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0),0 0 30px rgba(108,99,255,.08)}50%{box-shadow:0 0 20px rgba(108,99,255,.25),0 0 50px rgba(108,99,255,.12)}}
+.ai-header{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.ai-badge{font-size:.6rem;color:var(--bg);background:var(--alt);padding:.2rem .5rem;border-radius:4px;font-weight:600}
+.ai-body{color:var(--text);line-height:1.8}
+.ai-body .hi{color:var(--warn)}
+.ai-body .conf{color:var(--alt)}
+.ai-body .rec{color:var(--accent)}
+.restock-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem}
+.restock-table th{color:var(--muted);font-weight:500;padding:.4rem .6rem;border-bottom:1px solid var(--border);text-align:left}
+.restock-table td{padding:.4rem .6rem;border-bottom:1px solid rgba(42,42,53,.5);color:var(--text)}
+.badge{display:inline-block;font-size:.55rem;padding:.15rem .4rem;border-radius:4px;font-weight:600}
+.badge.high{background:rgba(255,77,109,.15);color:var(--danger)}
+.badge.med{background:rgba(255,181,71,.15);color:var(--warn)}
+.badge.low{background:rgba(0,212,170,.15);color:var(--alt)}
+.ai-headline{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem}
+
+/* ── STATS ── */
+#stats{
+  background:linear-gradient(135deg,rgba(108,99,255,.06),rgba(0,212,170,.04));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center}
+.stat-item{padding:2rem 1rem;position:relative}
+.stat-number{font-family:var(--mono);font-size:clamp(2rem,4vw,3rem);font-weight:600;color:var(--text);display:block;position:relative}
+.stat-number::after{content:'';position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.1),transparent 70%);pointer-events:none}
+.stat-label{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;margin-top:.5rem}
+.stat-sublabel{font-size:.7rem;color:var(--muted);opacity:.6;margin-top:.2rem}
+
+/* ── TESTIMONIALS ── */
+#testimonials{background:var(--bg);overflow:hidden}
+.testi-track{display:flex;gap:1.5rem;animation:testimScroll 25s linear infinite;width:max-content}
+#testimonials:hover .testi-track{animation-play-state:paused}
+@keyframes testimScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.testi-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
+  padding:1.8rem;width:320px;flex-shrink:0;
+  transition:transform .3s,border-color .3s;
+}
+.testi-card:hover{transform:translateY(-6px);border-color:var(--accent)}
+.testi-quote{font-size:.88rem;line-height:1.7;color:var(--text);margin-bottom:1.2rem}
+.testi-quote .highlight{color:var(--alt);font-weight:600}
+.testi-author{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.testi-store{font-family:var(--mono);font-size:.62rem;color:var(--accent);margin-top:.2rem}
+.stars{color:var(--warn);font-size:.8rem;margin-bottom:.75rem}
+
+/* ── PRICING ── */
+#pricing{background:var(--bg)}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:3rem;align-items:start}
+.pricing-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
+  padding:2rem;position:relative;
+  transition:transform .3s,box-shadow .3s;
+}
+.pricing-card:hover{transform:scale(1.03);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.pricing-card.featured{
+  border-color:var(--accent);
+  box-shadow:0 0 40px rgba(108,99,255,.15);
+  transform:translateY(-10px);
+}
+.pricing-card.featured:hover{transform:translateY(-16px) scale(1.02)}
+.popular-badge{
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;font-family:var(--mono);font-size:.6rem;
+  padding:.25rem .75rem;border-radius:0 0 8px 8px;white-space:nowrap;
+  animation:levitate 3s ease-in-out infinite;
+}
+.plan-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.plan-price{font-family:var(--mono);font-size:2rem;font-weight:600;color:var(--text);margin-bottom:1.2rem}
+.plan-price .curr{font-size:1rem;color:var(--muted);vertical-align:top;margin-top:.4rem;display:inline-block}
+.plan-price .period{font-size:.7rem;color:var(--muted)}
+.plan-price.free-price{color:var(--alt)}
+.plan-feature{font-size:.82rem;color:var(--muted);padding:.35rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.plan-feature::before{content:'✓';color:var(--alt);font-weight:700;flex-shrink:0}
+.plan-btn{display:block;width:100%;text-align:center;padding:.65rem;border-radius:8px;font-size:.85rem;font-weight:600;text-decoration:none;cursor:none;margin-top:1.5rem;transition:background .2s,box-shadow .2s}
+.plan-btn.primary{background:var(--accent);color:#fff}
+.plan-btn.primary:hover{box-shadow:0 0 25px rgba(108,99,255,.5)}
+.plan-btn.ghost{border:1px solid var(--border);color:var(--muted)}
+.plan-btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── TERMINAL CTA ── */
+#terminal-cta{
+  background:linear-gradient(180deg,var(--bg),var(--surf));
+  text-align:center;
+}
+.cta-terminal{
+  background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
+  padding:2rem;max-width:600px;margin:2rem auto;text-align:left;
+  font-family:var(--mono);font-size:.8rem;
+  box-shadow:0 0 60px rgba(108,99,255,.15);
+}
+.cta-line{color:var(--muted);margin-bottom:.4rem}
+.cta-line .ok{color:var(--alt)}
+.cta-line .cmd{color:var(--accent)}
+.cta-line .val{color:var(--warn)}
+.cta-btn{
+  display:inline-block;background:var(--accent);color:#fff;font-size:1rem;font-weight:700;
+  padding:1rem 2.5rem;border-radius:10px;text-decoration:none;cursor:none;
+  animation:levitate 3s ease-in-out infinite;
+  box-shadow:0 8px 40px rgba(108,99,255,.4);
+  transition:box-shadow .2s;border:none;
+  position:relative;overflow:hidden;
+}
+.cta-btn:hover{box-shadow:0 12px 60px rgba(108,99,255,.7)}
+.cta-sub{margin-top:1rem;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--surf);border-top:1px solid var(--border);
+  padding:3rem 2rem 5rem;
+}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2rem;align-items:start}
+.footer-brand{display:flex;flex-direction:column;gap:.75rem}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:.4rem}
+.footer-tagline{font-size:.82rem;color:var(--muted);line-height:1.5}
+.footer-sub{font-family:var(--mono);font-size:.6rem;color:var(--muted);opacity:.6;margin-top:.5rem}
+.footer-links h4{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.footer-links a{display:block;font-size:.82rem;color:var(--muted);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-made{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:2rem;text-align:center;max-width:1100px;margin:2rem auto 0;padding-top:1.5rem;border-top:1px solid var(--border);opacity:.7}
+.footer-tech{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;flex-wrap:wrap}
+.tech-badge{font-family:var(--mono);font-size:.55rem;border:1px solid var(--border);border-radius:4px;padding:.2rem .5rem;color:var(--muted)}
+
+/* ── PARTICLE CANVAS ── */
+#particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── HAMBURGER MENU ── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.4rem;background:none;border:none;z-index:710}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{
+  display:none;position:fixed;inset:0;z-index:690;
+  background:rgba(7,7,15,.97);backdrop-filter:blur(20px);
+  flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;
+  opacity:0;transform:translateY(-20px);
+  transition:opacity .3s,transform .3s;
+}
+.mobile-menu.open{opacity:1;transform:translateY(0)}
+.mobile-menu a{
+  font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;color:var(--text);
+  text-decoration:none;position:relative;transition:color .2s;
+}
+.mobile-menu a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--alt));transition:width .3s}
+.mobile-menu a:hover{color:var(--accent)}
+.mobile-menu a:hover::after{width:100%}
+.mobile-menu-cta{
+  background:var(--accent);color:#fff!important;font-size:1.1rem!important;
+  padding:.65rem 2rem;border-radius:8px;
+  box-shadow:0 0 30px rgba(108,99,255,.4);
+}
+.mobile-menu-cta::after{display:none!important}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .nav-links{display:none!important}
+  .nav-cta{display:none}
+  .mobile-menu{display:flex}
+}
+
+/* ── PRICING TOGGLE ── */
+.pricing-toggle-wrap{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:2.5rem}
+.toggle-label{font-family:var(--mono);font-size:.8rem;color:var(--muted);transition:color .2s}
+.toggle-label.active{color:var(--text)}
+.toggle-switch{position:relative;width:52px;height:28px;cursor:pointer}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:var(--border);border-radius:28px;
+  transition:background .3s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;width:20px;height:20px;left:4px;bottom:4px;
+  background:#fff;border-radius:50%;transition:transform .3s;
+}
+.toggle-switch input:checked + .toggle-slider{background:linear-gradient(90deg,var(--accent),var(--alt))}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(24px)}
+.save-badge{
+  font-family:var(--mono);font-size:.6rem;background:rgba(0,212,170,.15);
+  color:var(--alt);border:1px solid rgba(0,212,170,.3);border-radius:4px;
+  padding:.2rem .5rem;opacity:0;transition:opacity .3s;
+}
+.save-badge.visible{opacity:1}
+
+/* ── FLOATING CHIPS ── */
+.float-chips{position:absolute;pointer-events:none;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:0}
+.chip{
+  position:absolute;font-family:var(--mono);font-size:.65rem;
+  border:1px solid rgba(108,99,255,.3);border-radius:20px;
+  padding:.2rem .6rem;color:rgba(108,99,255,.5);
+  animation:chipFloat var(--dur2,18s) ease-in-out infinite var(--del,0s);
+}
+@keyframes chipFloat{0%,100%{transform:translate(0,0)}25%{transform:translate(10px,-15px)}50%{transform:translate(-5px,-30px)}75%{transform:translate(8px,-20px)}}
+
+/* ── SOCIAL PROOF BAR ── */
+.social-bar{
+  background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);
+  border-radius:.5rem;padding:.75rem 1.5rem;display:flex;align-items:center;
+  justify-content:center;gap:2rem;flex-wrap:wrap;margin:0 auto 3rem;max-width:700px;
+  font-family:var(--mono);font-size:.7rem;color:var(--muted);
+}
+.social-bar strong{color:var(--alt)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:.75rem 1.5rem}
+  .nav-links{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .ai-grid{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr}
+  .step-card{min-width:260px}
+  .hero-h1{font-size:clamp(2.2rem,8vw,4rem)}
+  #scroll-progress{display:none}
+  .terminal-box{min-width:90vw}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .hero-btns{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<!-- PARTICLE CANVAS -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#features" onclick="closeMobileMenu()">Features</a>
+  <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+  <a href="#testimonials" onclick="closeMobileMenu()">Stories</a>
+  <a href="#terminal-cta" onclick="closeMobileMenu()">Demo</a>
+  <a href="#terminal-cta" class="mobile-menu-cta" onclick="closeMobileMenu()">Start Free Trial →</a>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loading">
+  <div class="load-logo">⚡ <span>Super</span>Mart</div>
+  <div class="terminal-box" id="load-terminal">
+    <div class="t-line" id="tl0"><span class="ok">✔</span>  <span class="dim">Connecting to Supabase database</span><span class="dim">........</span> <span class="ok">OK</span></div>
+    <div class="t-line" id="tl1"><span class="ok">✔</span>  <span class="dim">Loading product catalogue</span><span class="dim">.............</span> <span class="val">847 items</span></div>
+    <div class="t-line" id="tl2"><span class="ok">✔</span>  <span class="dim">Syncing customer loyalty data</span><span class="dim">.........</span> <span class="ok">Ready</span></div>
+    <div class="t-line" id="tl3"><span class="ok">✔</span>  <span class="dim">Activating Gemini AI engine</span><span class="dim">...........</span> <span class="ok">Online</span></div>
+    <div class="t-line" id="tl4"><span class="ok">✔</span>  <span class="dim">Mounting POS terminals</span><span class="dim">.................</span> <span class="val">3 counters</span></div>
+    <div class="progress-row t-line" id="tl5">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <span id="prog-pct">0%</span>&nbsp; Opening Store... <span class="cursor-blink"></span>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress">
+  <div class="sp-label">Store Open</div>
+  <div id="scroll-bar-track"><div id="scroll-bar-fill" style="height:0%"></div></div>
+</div>
+
+<!-- LIVE TICKER -->
+<div id="live-ticker">
+  <div id="ticker-inner">
+    <div class="tick-item"><span class="tick-dot"></span> ₹840 — 3 items — Counter 1 — just now</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹1,240 — 5 items — Counter 2 — 1m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹620 — 2 items — Counter 3 — 2m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹3,100 — 12 items — Counter 1 — 3m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹490 — 2 items — Counter 2 — 4m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹2,280 — 8 items — Counter 3 — 5m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹750 — 4 items — Counter 1 — 6m ago</div>
+    <!-- duplicate for seamless loop -->
+    <div class="tick-item"><span class="tick-dot"></span> ₹840 — 3 items — Counter 1 — just now</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹1,240 — 5 items — Counter 2 — 1m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹620 — 2 items — Counter 3 — 2m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹3,100 — 12 items — Counter 1 — 3m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹490 — 2 items — Counter 2 — 4m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹2,280 — 8 items — Counter 3 — 5m ago</div>
+    <div class="tick-item"><span class="tick-dot"></span> ₹750 — 4 items — Counter 1 — 6m ago</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav" style="opacity:0">
+  <div class="nav-logo">⚡ <span class="dot">Super</span>Mart</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#testimonials">Stories</a>
+    <a href="#terminal-cta">Demo</a>
+  </div>
+  <a href="#terminal-cta" class="nav-cta">Start Free Trial →</a>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-orb v"></div>
+    <div class="hero-orb m"></div>
+    <!-- floating debris -->
+    <div class="float-debris" style="top:20%;left:10%;--dur:22s;--dx:30px;--dy:-300px;--dr:120deg">₹</div>
+    <div class="float-debris" style="top:60%;left:80%;--dur:18s;--dx:-20px;--dy:-250px;--dr:90deg">₹</div>
+    <div class="float-debris" style="top:40%;left:60%;--dur:25s;--dx:15px;--dy:-350px;--dr:200deg">〰</div>
+    <div class="float-debris" style="top:75%;left:25%;--dur:20s;--dx:-10px;--dy:-280px;--dr:150deg">₹</div>
+    <div class="float-debris" style="top:15%;left:75%;--dur:28s;--dx:25px;--dy:-320px;--dr:80deg">⬡</div>
+    <div class="float-debris" style="top:85%;left:55%;--dur:17s;--dx:-30px;--dy:-200px;--dr:260deg">◈</div>
+  </div>
+
+  <div class="float-chips">
+    <div class="chip" style="top:25%;left:5%;--dur2:16s;--del:0s">Dairy</div>
+    <div class="chip" style="top:45%;left:88%;--dur2:20s;--del:-5s">Snacks</div>
+    <div class="chip" style="top:70%;left:7%;--dur2:18s;--del:-8s">Beverages</div>
+    <div class="chip" style="top:30%;left:90%;--dur2:22s;--del:-3s">Staples</div>
+    <div class="chip" style="top:80%;left:78%;--dur2:14s;--del:-10s">Bakery</div>
+    <div class="chip" style="top:15%;left:50%;--dur2:24s;--del:-6s">Personal Care</div>
+  </div>
+
+  <div class="hero-eyebrow">AI-Powered Supermarket Management</div>
+  <h1 class="hero-h1">
+    <span class="line" id="hl1">MANAGE <span class="acc">SMARTER.</span></span>
+    <span class="line" id="hl2">SELL <span class="acc">FASTER.</span></span>
+  </h1>
+  <p class="hero-sub">Your entire supermarket — POS, inventory, AI forecasting, customers, staff — in one powerful dashboard.</p>
+  <div class="hero-terminal" id="hero-terminal">
+    <div class="ht-line"><span class="cmd">$ supermart init</span> <span class="flag">--store</span> "Thanjavur Branch" <span class="flag">--ai</span> gemini</div>
+    <div class="ht-line">&nbsp;</div>
+    <div id="ht-lines"></div>
+  </div>
+  <div class="hero-btns">
+    <a href="#terminal-cta" class="btn-primary" id="cta-main">Start Free Trial →</a>
+    <a href="#dashboard" class="btn-ghost">Watch Demo ▶</a>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="section-pad">
+  <div class="section-center">
+    <div class="section-eyebrow reveal">The Old Way</div>
+    <h2 class="section-title reveal">Running a store shouldn't<br>feel like this.</h2>
+    <div class="pain-grid">
+      <div class="pain-card reveal-left" style="transition-delay:.1s">
+        <div class="pain-emoji">😤</div>
+        <h3>Manual stock counting wastes 3 hours daily</h3>
+        <p>Your staff spends hours every day counting shelves when they should be serving customers.</p>
+      </div>
+      <div class="pain-card reveal" style="transition-delay:.2s">
+        <div class="pain-emoji">😰</div>
+        <h3>Lost sales from stockouts cost ₹40,000/month</h3>
+        <p>Customers walk out empty-handed — and don't come back — because you ran out of their favourites.</p>
+      </div>
+      <div class="pain-card reveal-right" style="transition-delay:.3s">
+        <div class="pain-emoji">😵</div>
+        <h3>No idea what's selling until month-end reports</h3>
+        <p>By the time you see what worked and what didn't, you've already missed the opportunity.</p>
+      </div>
+    </div>
+    <p class="pain-cta reveal">"SuperMart fixes all of this — <span style="color:var(--alt)">in real time.</span>"</p>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section-pad">
+  <div class="section-center">
+    <div class="section-eyebrow reveal">Platform Modules</div>
+    <h2 class="section-title reveal">Everything your store<br>needs. <span class="accent-text">Nothing it doesn't.</span></h2>
+    <div class="divider reveal"></div>
+    <div class="features-grid">
+      <div class="feat-card reveal-left" style="transition-delay:.05s">
+        <div class="feat-icon" style="--bob:2.8s">⚡</div>
+        <h3>Smart POS Terminal</h3>
+        <p>Lightning-fast billing with cash, UPI & card — 3 counters, one screen. PIN-based cashier login.</p>
+        <span class="feat-tag">LIVE</span>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.1s">
+        <div class="feat-icon" style="--bob:3.2s">📦</div>
+        <h3>Live Inventory</h3>
+        <p>Real-time stock tracking with low-stock alerts, expiry warnings & auto-status per category.</p>
+        <span class="feat-tag">REAL-TIME</span>
+      </div>
+      <div class="feat-card reveal-right" style="transition-delay:.15s">
+        <div class="feat-icon" style="--bob:2.5s">🤖</div>
+        <h3>Gemini AI Forecast</h3>
+        <p>Google Gemini predicts stockouts before they happen — with automated reorder suggestions.</p>
+        <span class="feat-tag" style="color:var(--alt);border-color:var(--alt)">AI-POWERED</span>
+      </div>
+      <div class="feat-card reveal-left" style="transition-delay:.2s">
+        <div class="feat-icon" style="--bob:3.5s">📊</div>
+        <h3>Sales Analytics</h3>
+        <p>Revenue trends, category margins, payment split — monthly and weekly deep dives in one view.</p>
+        <span class="feat-tag">INSIGHTS</span>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.25s">
+        <div class="feat-icon" style="--bob:2.9s">👥</div>
+        <h3>Customer Loyalty</h3>
+        <p>VIP tagging, visit tracking, loyalty points and complete spend history per customer profile.</p>
+        <span class="feat-tag">CRM</span>
+      </div>
+      <div class="feat-card reveal-right" style="transition-delay:.3s">
+        <div class="feat-icon" style="--bob:3.1s">👨‍💼</div>
+        <h3>Staff Management</h3>
+        <p>Shift tracking, PIN-based POS login, per-cashier transaction reporting and performance.</p>
+        <span class="feat-tag">HR</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="section-pad">
+  <div class="section-center" style="text-align:center">
+    <div class="section-eyebrow reveal">How It Works</div>
+    <h2 class="section-title reveal">Up and running in<br><span class="alt-text">under 10 minutes.</span></h2>
+    <div class="steps-row">
+      <div class="step-card reveal-left">
+        <div class="step-num">STEP 01</div>
+        <div class="step-icon">🏪</div>
+        <h3>Set Up Your Store</h3>
+        <p>Add your products, staff and store info. Import your catalogue or start fresh.</p>
+      </div>
+      <div class="step-arrow reveal">→</div>
+      <div class="step-card reveal">
+        <div class="step-num">STEP 02</div>
+        <div class="step-icon">⚡</div>
+        <h3>Start Billing at POS</h3>
+        <p>Cashiers log in with a PIN. Scan, bill, collect — done. UPI, card, and cash supported.</p>
+      </div>
+      <div class="step-arrow reveal">→</div>
+      <div class="step-card reveal-right">
+        <div class="step-num">STEP 03</div>
+        <div class="step-icon">📈</div>
+        <h3>Watch AI Optimize</h3>
+        <p>Gemini AI forecasts demand. You restock smarter every week. Revenue goes up.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD PREVIEW -->
+<section id="dashboard" class="section-pad">
+  <div class="section-center" style="text-align:center">
+    <div class="section-eyebrow reveal">Live Dashboard</div>
+    <h2 class="section-title reveal">Everything you see is<br><span class="accent-text">live data.</span></h2>
+    <div class="social-bar reveal">
+      <span>🏪 <strong>500+</strong> stores across Tamil Nadu</span>
+      <span>⚡ <strong>₹2.4 Cr</strong> processed this month</span>
+      <span>🤖 <strong>99.2%</strong> uptime SLA</span>
+    </div>
+    <div class="dash-wrap reveal" id="dash-wrap">
+      <div class="dash-mock" id="dash-mock">
+        <div class="dash-topbar">
+          <div class="dash-dot" style="background:#FF4D6D"></div>
+          <div class="dash-dot" style="background:#FFB547"></div>
+          <div class="dash-dot" style="background:#00D4AA"></div>
+          <span class="dash-title-bar">SuperMart Dashboard — Thanjavur Branch · Live</span>
+        </div>
+        <div class="dash-body">
+          <div class="dash-sidebar">
+            <div class="dash-nav-item active">📊 Dashboard</div>
+            <div class="dash-nav-item">⚡ POS</div>
+            <div class="dash-nav-item">📦 Inventory</div>
+            <div class="dash-nav-item">🤖 AI Insights</div>
+            <div class="dash-nav-item">👥 Customers</div>
+            <div class="dash-nav-item">📈 Analytics</div>
+            <div class="dash-nav-item">👨‍💼 Staff</div>
+          </div>
+          <div class="dash-main">
+            <div class="dash-kpis">
+              <div class="kpi-card">
+                <div class="kpi-label">Today's Revenue</div>
+                <div class="kpi-val">₹74,600 <span class="up">↑8.3%</span></div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Transactions</div>
+                <div class="kpi-val">284 <span class="up">↑5.1%</span></div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Avg Basket</div>
+                <div class="kpi-val">₹263 <span class="up">↑3.2%</span></div>
+              </div>
+            </div>
+            <div class="dash-charts">
+              <div class="chart-box">
+                <div class="chart-label">Revenue Trend (7 days)</div>
+                <svg class="sparkline" viewBox="0 0 200 50" preserveAspectRatio="none">
+                  <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6C63FF" stop-opacity=".4"/><stop offset="100%" stop-color="#6C63FF" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0,40 L28,35 L56,28 L84,32 L112,20 L140,22 L168,14 L200,10 L200,50 L0,50Z" fill="url(#sg)"/>
+                  <path d="M0,40 L28,35 L56,28 L84,32 L112,20 L140,22 L168,14 L200,10" fill="none" stroke="#6C63FF" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="chart-box" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div class="chart-label">Payment Split</div>
+                <div class="pie-chart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- annotations -->
+      <div class="dash-annotation" style="top:-14px;right:60px">🤖 Live Gemini AI</div>
+      <div class="dash-annotation" style="bottom:30px;left:-10px">📦 Real-time stock</div>
+      <div class="dash-annotation" style="top:50%;right:-10px;transform:translateY(-50%)">⚡ One-tap POS</div>
+    </div>
+    <p class="dash-caption reveal">No spreadsheets. No guesswork. Just real numbers, live.</p>
+  </div>
+</section>
+
+<!-- AI SPOTLIGHT -->
+<section id="ai-spot" class="section-pad">
+  <div class="section-center">
+    <div class="ai-grid">
+      <div>
+        <div class="section-eyebrow reveal">Gemini AI Integration</div>
+        <h2 class="ai-headline reveal">Your store has<br><span class="alt-text">a brain now.</span></h2>
+        <p class="section-sub reveal" style="margin-bottom:2rem">Google Gemini analyses your sales patterns, seasonal trends, and local events to predict stockouts — before they cost you money.</p>
+        <table class="restock-table reveal" style="transition-delay:.2s">
+          <thead>
+            <tr><th>Product</th><th>Stock</th><th>Days Left</th><th>Priority</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Amul Gold Milk 1L</td><td>145u</td><td>2.8d</td><td><span class="badge high">HIGH</span></td></tr>
+            <tr><td>Tropicana Orange 1L</td><td>62u</td><td>4.1d</td><td><span class="badge high">HIGH</span></td></tr>
+            <tr><td>Britannia Bread</td><td>88u</td><td>6.2d</td><td><span class="badge med">MEDIUM</span></td></tr>
+            <tr><td>Colgate MaxFresh</td><td>210u</td><td>11d</td><td><span class="badge low">LOW</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ai-card reveal-right" id="ai-insight-card">
+        <div class="ai-header">
+          <span>🤖</span>
+          <span style="color:var(--alt);font-weight:600">Gemini AI says...</span>
+          <span class="ai-badge">LIVE</span>
+        </div>
+        <div class="ai-body" id="ai-typing-area"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats" class="section-pad">
+  <div class="section-center">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <span class="stat-number" data-target="74600" data-prefix="₹" id="stat0">₹0</span>
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-sublabel">Thanjavur Branch</div>
+      </div>
+      <div class="stat-item reveal" style="transition-delay:.1s">
+        <span class="stat-number" data-target="284" id="stat1">0</span>
+        <div class="stat-label">Transactions Today</div>
+        <div class="stat-sublabel">Across 3 counters</div>
+      </div>
+      <div class="stat-item reveal" style="transition-delay:.2s">
+        <span class="stat-number" data-target="1847" id="stat2">0</span>
+        <div class="stat-label">Items Sold Today</div>
+        <div class="stat-sublabel">847 product catalogue</div>
+      </div>
+      <div class="stat-item reveal" style="transition-delay:.3s">
+        <span class="stat-number" data-target="99.2" data-suffix="%" id="stat3">0%</span>
+        <div class="stat-label">Uptime SLA</div>
+        <div class="stat-sublabel">Last 12 months</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="section-pad">
+  <div class="section-center" style="text-align:center;margin-bottom:2.5rem">
+    <div class="section-eyebrow reveal">Store Owner Stories</div>
+    <h2 class="section-title reveal">Real stores.<br><span class="accent-text">Real results.</span></h2>
+  </div>
+  <div style="overflow:hidden;padding:1rem 0">
+    <div class="testi-track">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"SuperMart's AI told me Tropicana was about to stock out <span class="highlight">2 days before it did.</span> Saved me ₹18,000 in lost sales."</p>
+        <div class="testi-author">Suresh K.</div>
+        <div class="testi-store">Thanjavur SuperMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"The POS is so fast my cashiers love it. Bill time dropped from 4 minutes to <span class="highlight">45 seconds</span> per customer."</p>
+        <div class="testi-author">Meena R.</div>
+        <div class="testi-store">Coimbatore FreshMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"I can see every cashier's performance from my phone. <span class="highlight">Never felt so in control</span> of my store."</p>
+        <div class="testi-author">Arjun V.</div>
+        <div class="testi-store">Chennai QuickMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"Set up was done in under 30 minutes. The Gemini forecast feature alone is worth <span class="highlight">10x the subscription cost.</span>"</p>
+        <div class="testi-author">Kavitha S.</div>
+        <div class="testi-store">Madurai GroceryHub</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"During Pongal season, the AI predicted our exact demand spike. <span class="highlight">Zero stockouts</span> for the first time ever."</p>
+        <div class="testi-author">Ramesh P.</div>
+        <div class="testi-store">Trichy FamilyMart</div>
+      </div>
+      <!-- duplicate for seamless loop -->
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"SuperMart's AI told me Tropicana was about to stock out <span class="highlight">2 days before it did.</span> Saved me ₹18,000 in lost sales."</p>
+        <div class="testi-author">Suresh K.</div>
+        <div class="testi-store">Thanjavur SuperMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"The POS is so fast my cashiers love it. Bill time dropped from 4 minutes to <span class="highlight">45 seconds</span> per customer."</p>
+        <div class="testi-author">Meena R.</div>
+        <div class="testi-store">Coimbatore FreshMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"I can see every cashier's performance from my phone. <span class="highlight">Never felt so in control</span> of my store."</p>
+        <div class="testi-author">Arjun V.</div>
+        <div class="testi-store">Chennai QuickMart</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"Set up was done in under 30 minutes. The Gemini forecast feature alone is worth <span class="highlight">10x the subscription cost.</span>"</p>
+        <div class="testi-author">Kavitha S.</div>
+        <div class="testi-store">Madurai GroceryHub</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"During Pongal season, the AI predicted our exact demand spike. <span class="highlight">Zero stockouts</span> for the first time ever."</p>
+        <div class="testi-author">Ramesh P.</div>
+        <div class="testi-store">Trichy FamilyMart</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section-pad">
+  <div class="section-center" style="text-align:center">
+    <div class="section-eyebrow reveal">Simple Pricing</div>
+    <h2 class="section-title reveal">Start free.<br><span class="accent-text">Scale when you're ready.</span></h2>
+
+    <!-- PRICING TOGGLE -->
+    <div class="pricing-toggle-wrap reveal">
+      <span class="toggle-label active" id="label-monthly">Monthly</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="pricing-toggle" onchange="switchPricing(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label" id="label-annual">Annual</span>
+      <span class="save-badge" id="save-badge">Save 20%</span>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal-left">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price free-price">Free</div>
+        <div class="plan-feature">1 Counter</div>
+        <div class="plan-feature">500 Products</div>
+        <div class="plan-feature">Basic Reports</div>
+        <div class="plan-feature">Email Support</div>
+        <a href="#" class="plan-btn ghost">Get Started</a>
+      </div>
+      <div class="pricing-card featured reveal" style="transition-delay:.1s">
+        <div class="popular-badge">✦ Most Popular</div>
+        <div class="plan-name" style="color:var(--accent)">Pro</div>
+        <div class="plan-price">
+          <span class="curr">₹</span><span id="pro-price">2,999</span><span class="period" id="pro-period">/mo</span>
+        </div>
+        <div class="plan-feature">3 Counters</div>
+        <div class="plan-feature">Unlimited Products</div>
+        <div class="plan-feature" style="color:var(--alt)">🤖 Gemini AI Forecast</div>
+        <div class="plan-feature">Customer Loyalty CRM</div>
+        <div class="plan-feature">Priority Support</div>
+        <a href="#" class="plan-btn primary">Start Free Trial</a>
+      </div>
+      <div class="pricing-card reveal-right" style="transition-delay:.2s">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:1.4rem;padding-top:.5rem">Custom</div>
+        <div class="plan-feature">Unlimited Counters</div>
+        <div class="plan-feature">Unlimited Products</div>
+        <div class="plan-feature">White-label Platform</div>
+        <div class="plan-feature">Dedicated CSM</div>
+        <div class="plan-feature">SLA Guarantee</div>
+        <a href="#" class="plan-btn ghost">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TERMINAL CTA -->
+<section id="terminal-cta" class="section-pad">
+  <div class="section-center" style="text-align:center">
+    <div class="section-eyebrow reveal">Ready to Start?</div>
+    <h2 class="section-title reveal">Open your smartest<br><span class="alt-text">store ever.</span></h2>
+    <div class="cta-terminal reveal">
+      <div class="cta-line"><span class="cmd">$ supermart open</span> <span style="color:var(--muted)">--store</span> <span class="val">"Your Store"</span> <span style="color:var(--muted)">--plan</span> pro</div>
+      <div class="cta-line">&nbsp;</div>
+      <div class="cta-line" id="cta-t1" style="opacity:0"><span class="ok">✔</span>  Store profile created</div>
+      <div class="cta-line" id="cta-t2" style="opacity:0"><span class="ok">✔</span>  3 POS terminals activated</div>
+      <div class="cta-line" id="cta-t3" style="opacity:0"><span class="ok">✔</span>  Gemini AI forecasting enabled</div>
+      <div class="cta-line" id="cta-t4" style="opacity:0"><span class="ok">✔</span>  <span class="val">First 30 days free — no card needed</span></div>
+      <div class="cta-line" style="margin-top:.75rem">&nbsp;</div>
+      <div class="cta-line">Ready to open? <span class="cmd">[Y/n]</span> <span class="cursor-blink"></span></div>
+    </div>
+    <button class="cta-btn reveal" id="main-cta-btn" onclick="triggerParticles(this)">Start Free Trial →</button>
+    <p class="cta-sub reveal">No credit card required · Setup in 10 minutes · Cancel anytime</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">⚡ <span style="color:var(--accent)">Super</span>Mart</div>
+      <p class="footer-tagline">"The Smartest Way to Run Your Store"<br>AI-Powered POS · Smart Inventory · Gemini Forecasting · Built for Indian Retail</p>
+      <p class="footer-sub">Made with ⚡ in Tamil Nadu, India</p>
+    </div>
+    <div class="footer-links">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#dashboard">Demo</a>
+      <a href="#ai-spot">AI Forecast</a>
+    </div>
+    <div class="footer-links">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+  <div class="footer-made">
+    Powered by
+    <div class="footer-tech">
+      <span class="tech-badge">Supabase</span>
+      <span class="tech-badge">Google Gemini AI</span>
+      <span class="tech-badge">React</span>
+      <span class="tech-badge">PostgreSQL</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── LOADING SCREEN ──
+(function(){
+  const lines = ['tl0','tl1','tl2','tl3','tl4'];
+  let idx = 0;
+  function showLine(){
+    if(idx < lines.length){
+      document.getElementById(lines[idx]).classList.add('show');
+      idx++;
+      setTimeout(showLine, 420);
+    } else {
+      // progress bar
+      const fill = document.getElementById('prog-fill');
+      const pct = document.getElementById('prog-pct');
+      document.getElementById('tl5').classList.add('show');
+      let p = 0;
+      const iv = setInterval(()=>{
+        p = Math.min(100, p + 2.5);
+        fill.style.width = p + '%';
+        pct.textContent = Math.round(p) + '%';
+        if(p >= 100){
+          clearInterval(iv);
+          setTimeout(burstAndHide, 400);
+        }
+      }, 40);
+    }
+  }
+  setTimeout(showLine, 400);
+
+  function burstAndHide(){
+    const load = document.getElementById('loading');
+    const emojis = ['🥛','🍪','🧂','☕','🧼','🌾','🥚','🧃','🍜','🫙'];
+    for(let i=0;i<18;i++){
+      const e = document.createElement('span');
+      e.className='emoji-burst';
+      e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      const angle = Math.random()*Math.PI*2;
+      const dist = 150 + Math.random()*200;
+      e.style.cssText = `left:${40+Math.random()*20}%;top:${40+Math.random()*20}%;--ex:${Math.cos(angle)*dist}px;--ey:${Math.sin(angle)*dist-200}px`;
+      load.appendChild(e);
+    }
+    setTimeout(()=>{
+      load.classList.add('hide');
+      // Show nav and hero elements
+      document.getElementById('main-nav').style.opacity='1';
+      setTimeout(()=>{
+        document.getElementById('hl1').classList.add('show');
+        setTimeout(()=>document.getElementById('hl2').classList.add('show'),200);
+        startHeroTerminal();
+      },300);
+    }, 800);
+  }
+})();
+
+// ── HERO TERMINAL TYPING ──
+function startHeroTerminal(){
+  const lines2 = [
+    {html:'<span class="ok">✔</span>  <span style="color:var(--muted)">POS Terminal ready — Counter 1, 2, 3</span>'},
+    {html:'<span class="ok">✔</span>  <span style="color:var(--muted)">847 products loaded</span>'},
+    {html:'<span class="ok">✔</span>  <span style="color:var(--muted)">Gemini AI: Stock forecast updated</span>'},
+    {html:'<span class="ok">✔</span>  Today\'s revenue: <span class="rev" style="color:var(--warn);font-weight:600">₹74,600</span> ↑ 8.3%'},
+  ];
+  const container = document.getElementById('ht-lines');
+  let i=0;
+  function addLine(){
+    if(i<lines2.length){
+      const d=document.createElement('div');
+      d.className='ht-line';
+      d.style.opacity='0';
+      d.style.transform='translateX(-8px)';
+      d.style.transition='opacity .3s,transform .3s';
+      d.innerHTML=lines2[i].html;
+      container.appendChild(d);
+      setTimeout(()=>{d.style.opacity='1';d.style.transform='translateX(0)'},30);
+      i++;
+      setTimeout(addLine,500);
+    }
+  }
+  setTimeout(addLine,600);
+}
+
+// ── CUSTOM CURSOR ──
+const cursor = document.getElementById('cursor');
+let mx=0,my=0;
+const trails=[];
+for(let i=0;i<8;i++){
+  const t=document.createElement('div');
+  t.className='trail-dot';
+  const s=8-i;
+  t.style.cssText=`width:${s}px;height:${s}px;background:rgba(0,212,170,${0.6-i*0.07});`;
+  document.body.appendChild(t);
+  trails.push({el:t,x:0,y:0});
+}
+const trailHistory=[];
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+  trailHistory.unshift({x:mx,y:my});
+  if(trailHistory.length>20)trailHistory.pop();
+});
+function animTrail(){
+  trails.forEach((t,i)=>{
+    const h=trailHistory[Math.min(i*2,trailHistory.length-1)]||{x:0,y:0};
+    t.x+=(h.x-t.x)*0.3;
+    t.y+=(h.y-t.y)*0.3;
+    t.el.style.left=t.x+'px';t.el.style.top=t.y+'px';
+  });
+  requestAnimationFrame(animTrail);
+}
+animTrail();
+document.querySelectorAll('a,button,.feat-card,.pain-card,.testi-card,.pricing-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursor.classList.add('big'));
+  el.addEventListener('mouseleave',()=>cursor.classList.remove('big'));
+});
+
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll',()=>{
+  const max=document.body.scrollHeight-window.innerHeight;
+  const pct=window.scrollY/max*100;
+  document.getElementById('scroll-bar-fill').style.height=pct+'%';
+},{ passive:true });
+
+// ── INTERSECTION OBSERVER ──
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      en.target.classList.add('visible');
+      // stats counter
+      if(en.target.dataset.target) startCounter(en.target);
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,[data-target]').forEach(el=>io.observe(el));
+
+// ── COUNTER ANIMATION ──
+function startCounter(el){
+  if(el.dataset.counted)return;
+  el.dataset.counted='1';
+  const target=parseFloat(el.dataset.target);
+  const prefix=el.dataset.prefix||'';
+  const suffix=el.dataset.suffix||'';
+  const isFloat=target%1!==0;
+  let start=0;const dur=1800;const startTime=performance.now();
+  function tick(now){
+    const t=Math.min((now-startTime)/dur,1);
+    const ease=1-Math.pow(1-t,3);
+    const val=start+(target-start)*ease;
+    el.textContent=prefix+(isFloat?val.toFixed(1):Math.round(val).toLocaleString('en-IN'))+suffix;
+    if(t<1)requestAnimationFrame(tick);
+    else el.textContent=prefix+(isFloat?target.toFixed(1):target.toLocaleString('en-IN'))+suffix;
+  }
+  requestAnimationFrame(tick);
+}
+
+// ── AI TYPING ──
+const aiText=`"Amul Gold Milk demand will spike +42%\nthis Sunday. Current stock: 145 units.\nCovers only 2.8 days at projected rate.\n\nRecommended reorder: 380 units by Friday.\nConfidence: 92%"`;
+let aiStarted=false;
+const aiObs=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting && !aiStarted){
+      aiStarted=true;
+      typeAiText();
+    }
+  });
+},{threshold:.3});
+const aiCard=document.getElementById('ai-insight-card');
+if(aiCard)aiObs.observe(aiCard);
+
+function typeAiText(){
+  const el=document.getElementById('ai-typing-area');
+  let i=0;
+  function tick(){
+    if(i<aiText.length){
+      const ch=aiText[i];
+      if(ch==='\n'){el.innerHTML+='<br>';}
+      else{
+        const s=document.createElement('span');
+        // color highlights
+        const remaining=aiText.slice(i);
+        let colored=ch;
+        el.innerHTML+=colored;
+      }
+      i++;
+      setTimeout(tick,28);
+    }
+  }
+  tick();
+}
+
+// ── DASHBOARD PARALLAX ──
+const dashWrap=document.getElementById('dash-wrap');
+document.addEventListener('mousemove',e=>{
+  if(!dashWrap)return;
+  const rect=dashWrap.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+  dashWrap.style.transform=`perspective(1200px) rotateX(${4-dy*3}deg) rotateY(${-3+dx*4}deg)`;
+});
+
+// ── CTA TERMINAL REVEAL ──
+const ctaObs=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      ['cta-t1','cta-t2','cta-t3','cta-t4'].forEach((id,i)=>{
+        setTimeout(()=>{
+          const el=document.getElementById(id);
+          if(el){el.style.transition='opacity .4s';el.style.opacity='1';}
+        },400+i*350);
+      });
+    }
+  });
+},{threshold:.4});
+const ctaTerm=document.querySelector('.cta-terminal');
+if(ctaTerm)ctaObs.observe(ctaTerm);
+
+// ── PARTICLE BURST ──
+function triggerParticles(btn){
+  const syms=['₹','✦','⚡','★','◈'];
+  const rect=btn.getBoundingClientRect();
+  for(let i=0;i<20;i++){
+    const p=document.createElement('span');
+    p.textContent=syms[Math.floor(Math.random()*syms.length)];
+    const angle=Math.random()*Math.PI*2;
+    const dist=80+Math.random()*120;
+    p.style.cssText=`
+      position:fixed;left:${rect.left+rect.width/2}px;top:${rect.top+rect.height/2}px;
+      font-size:${0.6+Math.random()*0.8}rem;color:${Math.random()>.5?'#6C63FF':'#00D4AA'};
+      pointer-events:none;z-index:9999;
+      animation:particleFly .8s ease-out forwards;
+      --px:${Math.cos(angle)*dist}px;--py:${Math.sin(angle)*dist}px;
+    `;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),900);
+  }
+}
+// inject particle keyframe
+const style=document.createElement('style');
+style.textContent=`@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(.2)}}`;
+document.head.appendChild(style);
+
+// ── MAGNETIC BUTTONS ──
+document.querySelectorAll('.btn-primary,.btn-ghost,.cta-btn').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const rect=btn.getBoundingClientRect();
+    const dx=e.clientX-(rect.left+rect.width/2);
+    const dy=e.clientY-(rect.top+rect.height/2);
+    btn.style.transform=`translate(${dx*.15}px,${dy*.15}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+});
+
+// ── SMOOTH APPEAR NAV ──
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  const curr=window.scrollY;
+  const nav=document.getElementById('main-nav');
+  if(curr<50){nav.style.background='rgba(7,7,15,0)';}
+  else{nav.style.background='rgba(7,7,15,0.85)';}
+  lastScroll=curr;
+},{passive:true});
+
+// ── PARTICLE CANVAS ──
+(function(){
+  const canvas=document.getElementById('particle-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  const COLORS=['rgba(108,99,255,','rgba(0,212,170,','rgba(255,77,109,','rgba(255,181,71,'];
+  function rand(a,b){return a+Math.random()*(b-a)}
+
+  class Particle{
+    constructor(){this.reset(true)}
+    reset(init){
+      this.x=rand(0,W);
+      this.y=init?rand(0,H):H+10;
+      this.r=rand(0.5,2.2);
+      this.vx=rand(-0.3,0.3);
+      this.vy=rand(-0.6,-0.2);
+      this.alpha=rand(0.1,0.6);
+      this.col=COLORS[Math.floor(Math.random()*COLORS.length)];
+      this.life=0;this.maxLife=rand(200,500);
+    }
+    update(){
+      this.x+=this.vx;this.y+=this.vy;this.life++;
+      const t=this.life/this.maxLife;
+      this.alpha=(t<0.1?t*6:t>0.8?(1-t)*5:1)*rand(0.15,0.55);
+      if(this.life>this.maxLife||this.y<-10)this.reset(false);
+    }
+    draw(){
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle=this.col+this.alpha+')';
+      ctx.fill();
+    }
+  }
+
+  // Create orb blobs
+  const orbs=[
+    {x:0.15,y:0.25,r:300,col:'rgba(108,99,255,',base:0.06,dx:0.0003,dy:0.0002},
+    {x:0.85,y:0.7,r:250,col:'rgba(0,212,170,',base:0.05,dx:-0.0002,dy:0.0003},
+    {x:0.5,y:0.5,r:180,col:'rgba(108,99,255,',base:0.03,dx:0.0004,dy:-0.0002},
+  ];
+  let t2=0;
+
+  for(let i=0;i<160;i++)particles.push(new Particle());
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t2+=0.01;
+
+    // Animated floating orbs
+    orbs.forEach(o=>{
+      const cx=(o.x+Math.sin(t2*o.dx*100)*0.05)*W;
+      const cy=(o.y+Math.cos(t2*o.dy*100)*0.05)*H;
+      const r=o.r+(Math.sin(t2*0.7)*20);
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,o.col+(o.base*1.5)+')');
+      g.addColorStop(1,o.col+'0)');
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+    });
+
+    // Particles
+    particles.forEach(p=>{p.update();p.draw();});
+
+    // Connection lines between nearby particles
+    for(let i=0;i<particles.length;i+=3){
+      for(let j=i+3;j<particles.length;j+=3){
+        const dx=particles[i].x-particles[j].x;
+        const dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<90){
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle=`rgba(108,99,255,${(1-dist/90)*0.08})`;
+          ctx.lineWidth=0.5;ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── PRICING TOGGLE ──
+function switchPricing(isAnnual){
+  const proPrice=document.getElementById('pro-price');
+  const proPeriod=document.getElementById('pro-period');
+  const labelMonthly=document.getElementById('label-monthly');
+  const labelAnnual=document.getElementById('label-annual');
+  const saveBadge=document.getElementById('save-badge');
+  if(isAnnual){
+    proPrice.textContent='2,399';
+    proPeriod.textContent='/mo, billed annually';
+    labelMonthly.classList.remove('active');
+    labelAnnual.classList.add('active');
+    saveBadge.classList.add('visible');
+  } else {
+    proPrice.textContent='2,999';
+    proPeriod.textContent='/mo';
+    labelMonthly.classList.add('active');
+    labelAnnual.classList.remove('active');
+    saveBadge.classList.remove('visible');
+  }
+  // Animate the price number
+  proPrice.style.transform='scale(1.15)';
+  proPrice.style.color='var(--alt)';
+  proPrice.style.transition='transform .2s,color .2s';
+  setTimeout(()=>{proPrice.style.transform='';proPrice.style.color='';},300);
+}
+
+// ── HAMBURGER MOBILE MENU ──
+function toggleMobileMenu(){
+  const menu=document.getElementById('mobile-menu');
+  const btn=document.getElementById('hamburger-btn');
+  const isOpen=menu.classList.contains('open');
+  if(isOpen){
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow='';
+  } else {
+    menu.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+}
+function closeMobileMenu(){
+  const menu=document.getElementById('mobile-menu');
+  const btn=document.getElementById('hamburger-btn');
+  menu.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  price     Float
+  cost      Float?
+  stock     Int
+  barcode   String?
+  sku       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ImportHistory {
+  id             Int      @id @default(autoincrement())
+  filename       String
+  importedBy     String
+  totalRows      Int
+  successRows    Int
+  failedRows     Int
+  createdAt      DateTime @default(now())
+  status         String
+  errorReportUrl String?
+  
+  errors         ImportErrors[]
+}
+
+model ImportErrors {
+  id           Int           @id @default(autoincrement())
+  importId     Int
+  rowNumber    Int
+  errorMessage String
+  rawData      String
+  
+  import       ImportHistory @relation(fields: [importId], references: [id])
+}
