@@ -7,7 +7,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        customer: 'customer website.html'
+        customer: 'customer-website.html'
       }
     }
   }

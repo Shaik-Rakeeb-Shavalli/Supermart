@@ -1,178 +1,124 @@
-# 🛒 SuperMart — AI-Powered Retail Management System
+# 🛒 Supermart POS & Customer Storefront System
 
-A full-stack, multi-portal retail management platform built with **React + Vite + Firebase**. SuperMart connects four portals in real time — Admin, Staff (POS), Customer Storefront, and a public Landing Page.
-
----
-
-## ✨ Features
-
-### 🏠 Landing Page
-- Animated, luxury-themed public storefront
-- Login portal selector (Admin / Staff / Customer)
-- Real-time product showcase
-
-### 🔐 Admin Portal
-- Full dashboard with live KPIs (revenue, orders, customers, stock)
-- Product management — add, edit, delete, bulk CSV import, auto-fetch product images
-- Customer & Staff management
-- Analytics with Recharts (Area, Bar, Radar, Radial, Pie charts)
-- AI Sales Forecast powered by Groq LLM
-- Banner management (auto-scrolling banners on POS & Customer pages)
-- Transaction history with live ticker
-- Auto-sliding sidebar (72px icon rail → 240px on hover, pinnable)
-- Light / Dark theme toggle
-- AI Voice Assistant with real-time Firebase data context
-
-### 🖥️ POS System (Staff Portal)
-- Touch-friendly cashier interface
-- Barcode scanning simulation
-- Sliding cart drawer
-- Multiple payment modes (Cash, Card, UPI)
-- Receipt printing
-- Break request notifications to admin
-- Maison Aurum luxury dark-gold theme
-
-### 🛍️ Customer Portal
-- Luxury storefront with auto-scrolling banner carousel
-- Real-time product catalog from Firebase
-- Sliding cart with smooth animations
-- Customer loyalty & transaction history
-- Order placement connected to Firebase
+A premium, modern, and state-of-the-art Web Application for managing Supermart operations. This project features a dual-facing system: an ultra-sleek, premium **Point of Sale (POS) Cashier Interface** and a highly interactive, beautifully designed **Customer Storefront** integrated with a real-time **Admin Dashboard**.
 
 ---
 
-## 🏗️ Tech Stack
+## ✨ Features & Highlights
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, Vite 5 |
-| Database | Firebase Firestore (real-time) |
-| UI & Charts | Lucide React, Recharts, CSS animations |
-| AI | Groq LLaMA API (voice assistant + forecasting) |
-| Deployment | Vercel (frontend) |
+### 🛍️ Customer Storefront & Portal
+- **Rich Aesthetics:** Modern CSS styling using Google Fonts, custom harmonious color palettes, smooth gradients, and elegant dark/light components.
+- **Auto-Scrolling Banners:** Dynamic promotional banners that update in real-time. Banners are customizable directly via the Admin Portal.
+- **Sliding Drawer Shopping Cart:** Add products to the cart and see them in a premium sliding cart drawer that glides out from the side smoothly.
+- **Interactive Experience:** Subtle micro-animations, hover states, and smooth card transitions.
+
+### 💻 POS Cashier Portal
+- **Matching Visual Theme:** Seamlessly aligned with the customer storefront's color palettes, premium typography, and active visual transitions.
+- **Fast Checkout & POS Operations:** Instant product search, cart computations, real-time sync with inventory, and responsive layouts designed for cashiers.
+- **CSV Data Import Module:** Simple, swift CSV file imports for bulk product updates and cashier listings.
+
+### 🛡️ Admin & Analytics Dashboard
+- **Auto-Hiding Sidebar:** A beautiful, responsive navigation panel that automatically hides itself when not in use, slide-revealing smoothly when the cursor approaches the edge.
+- **Persistent Icon Dock:** Quick-access utility icons remain visible on the side even when the main menu panel is hidden, ensuring cashiers and administrators never lose access.
+- **No-Blur Interface:** The primary workspace remains clear and sharp (no active blurring) when navigating the sidebar to prioritize visual clarity during rapid transactions.
+- **Real-Time Database:** Fully powered by Firestore for synchronous document updates, live analytics, and sales logs.
+
+### 🎙️ AI Voice Assistant
+- **Hands-Free Control:** Integrated AI Voice Assistant (`AIVoiceAssistant.jsx`) to execute voice-guided catalog inquiries and POS billing interactions.
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend & UI
+- **Core:** React, Vite, HTML5, Vanilla CSS
+- **Styling:** Bespoke Glassmorphic CSS layouts, custom CSS animations, modern responsive design
+- **State & DB:** Firebase (Firestore, Authentication, Storage)
+
+### Backend & Database
+- **Server:** Node.js, Express, TypeScript (`server.ts`)
+- **ORM & DB:** Prisma ORM with structured SQL schemas
+- **Assets:** Secure uploads handling local image arrays
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+
-- A Firebase project with Firestore enabled
-- A Groq API key (free at [console.groq.com](https://console.groq.com))
+### 📋 Prerequisites
+- **Node.js** (v18 or higher recommended)
+- **Firebase Project Account**
+- **Git**
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/YOUR_USERNAME/supermart.git
-cd supermart
-```
+### 🔧 Installation & Local Setup
 
-### 2. Install dependencies
-```bash
-npm install
-```
+1. **Clone the Repository**
+   ```bash
+   git clone <your-repository-url>
+   cd "Final Mini  Project"
+   ```
 
-### 3. Set up environment variables
-```bash
-cp .env.example .env
-```
-Fill in your actual keys inside `.env`:
-```env
-VITE_GROQ_API_KEY=your_groq_api_key_here
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-```
+2. **Configure Environment Variables**
+   Create a `.env` file in the root directory and define your Firebase config details:
+   ```env
+   VITE_FIREBASE_API_KEY="your-api-key"
+   VITE_FIREBASE_AUTH_DOMAIN="your-auth-domain"
+   VITE_FIREBASE_PROJECT_ID="your-project-id"
+   VITE_FIREBASE_STORAGE_BUCKET="your-storage-bucket"
+   VITE_FIREBASE_MESSAGING_SENDER_ID="your-messaging-id"
+   VITE_FIREBASE_APP_ID="your-app-id"
+   ```
 
-### 4. Run the development server
-```bash
-npm run dev
-```
-Open [http://localhost:5173](http://localhost:5173)
+3. **Install Dependencies**
+   - **Frontend:**
+     ```bash
+     npm install
+     ```
+   - **Backend:**
+     ```bash
+     cd backend
+     npm install
+     ```
 
-### 5. Build for production
-```bash
-npm run build
+4. **Run Development Servers**
+   - **Frontend Server:**
+     ```bash
+     npm run dev
+     ```
+   - **Backend Server:**
+     ```bash
+     cd backend
+     npm run dev
+     ```
+
+5. **Build for Production**
+   To create an optimized production build of the frontend, run:
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 📂 Project Structure
+
+```
+├── .env.example             # Template for Firebase credentials
+├── .gitignore               # Configured to ignore node_modules, build outputs, and secrets
+├── AIVoiceAssistant.jsx     # AI Voice Assistant logic and UI
+├── CsvImportModule.jsx      # Cashier/Product bulk CSV importer
+├── LandingPage.jsx          # Interactive landing page
+├── customer-website.html    # Entry for the customer storefront
+├── firebase.js              # Live Firebase configurations
+├── main.jsx                 # Application entry point
+├── supermart1.jsx           # POS cashier portal and active admin interfaces
+├── vite.config.js           # Vite server config mapped for multiple entry-points
+├── backend/                 # Node.js backend workspace
+│   ├── prisma/              # Prisma configuration and schema definition
+│   ├── server.ts            # Node.js backend server entry point
+│   └── package.json         # Backend manifest
+└── package.json             # Main application manifest
 ```
 
 ---
 
-## 🌐 Deploying to Vercel
-
-1. Push your code to GitHub (see below)
-2. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import your GitHub repo
-3. Vercel auto-detects the Vite framework
-4. In **Environment Variables**, add all keys from your `.env` file
-5. Click **Deploy**
-
-> The `vercel.json` in this repo handles SPA routing and asset caching automatically.
-
----
-
-## 🔥 Firebase Setup
-
-1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable **Firestore Database** in production mode
-3. Create these collections manually or let the app create them on first use:
-   - `products`
-   - `customers`
-   - `staff`
-   - `transactions`
-   - `notifications`
-   - `banners`
-4. Update Firestore Security Rules (see `firestore.rules`)
-
----
-
-## 📁 Project Structure
-
-```
-supermart/
-├── index.html              # Main app entry (Admin + Staff + Landing)
-├── customer website.html   # Customer storefront entry
-├── main.jsx                # React root mount
-├── supermart1.jsx          # Main React app (~4800 lines, all portals)
-├── LandingPage.jsx         # Animated landing page component
-├── AIVoiceAssistant.jsx    # Voice assistant component
-├── CsvImportModule.jsx     # CSV bulk import component
-├── firebase.js             # Firebase init + Firestore helpers
-├── vite.config.js          # Vite + multi-page config
-├── vercel.json             # Vercel deployment config
-├── .env.example            # Environment variable template
-├── firestore.rules         # Firestore security rules
-└── shopping-cart-character.png
-```
-
----
-
-## 🔐 Security Notes
-
-- **Never commit your `.env` file** — it's in `.gitignore`
-- All Firebase keys are loaded via `import.meta.env.VITE_*` (Vite env variables)
-- Add your production domain to Firebase **Authorized Domains** in Authentication settings
-- Tighten Firestore rules before going live (the default rules are open for development)
-
----
-
-## 📸 Screenshots
-
-> _Admin Dashboard · POS Terminal · Customer Storefront · Landing Page_
-
----
-
-## 📄 License
-
-MIT License — free for personal and educational use.
-
----
-
-## 🙏 Acknowledgements
-
-- [Firebase](https://firebase.google.com) for real-time database
-- [Groq](https://groq.com) for ultra-fast LLaMA inference
-- [Lucide](https://lucide.dev) for icons
-- [Recharts](https://recharts.org) for charts
-- [Vercel](https://vercel.com) for hosting
+## 🎨 UI/UX Theme Strategy
+The interface utilizes a custom dark-glass and vibrant neon-accent color palette. Micro-animations are implemented using native CSS keyframes to ensure high-performance execution without standard library bloat.

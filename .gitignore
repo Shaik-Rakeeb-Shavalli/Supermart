@@ -2,18 +2,13 @@
 .env
 .env.local
 .env.*.local
-.env.production
-.env.development
-.env.staging
 
 # ─── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
-backend/node_modules/
 
 # ─── Build output ─────────────────────────────────────────────────────────────
 dist/
 build/
-backend/dist/
 
 # ─── Vite cache ───────────────────────────────────────────────────────────────
 .vite/
@@ -24,20 +19,12 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
-*.suo
-*.user
 
 # ─── Firebase local emulator data ─────────────────────────────────────────────
 .firebase/
 firebase-debug.log
 firestore-debug.log
 
-# ─── Backend uploads ──────────────────────────────────────────────────────────
-backend/uploads/
+# ─── Local Scratch / Artifacts ────────────────────────────────────────────────
+scratch/
 
-# ─── Windows notification icon junk ──────────────────────────────────────────
-NotifyIconGeneratedAumid_*.png
-
-# ─── Misc ─────────────────────────────────────────────────────────────────────
-*.tmp
-*.bak

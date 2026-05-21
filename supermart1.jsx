@@ -4742,7 +4742,7 @@ export default function App() {
       onCustomerLogin={(cust) => {
         setActiveCustomer(cust);
         sessionStorage.setItem("supermart_active_customer", JSON.stringify(cust));
-        window.location.href = "/customer website.html";
+        window.location.href = "/customer-website.html";
       }}
       onBackToLanding={() => setView("landing")}
       onToggleType={(viewName) => setView(viewName)}
@@ -4756,7 +4756,7 @@ export default function App() {
       onCustomerLogin={(cust) => {
         setActiveCustomer(cust);
         sessionStorage.setItem("supermart_active_customer", JSON.stringify(cust));
-        window.location.href = "/customer website.html";
+        window.location.href = "/customer-website.html";
       }}
       onBackToLanding={() => setView("landing")}
       onToggleType={(viewName) => setView(viewName)}
@@ -4770,7 +4770,7 @@ export default function App() {
       onCustomerLogin={(cust) => {
         setActiveCustomer(cust);
         sessionStorage.setItem("supermart_active_customer", JSON.stringify(cust));
-        window.location.href = "/customer website.html";
+        window.location.href = "/customer-website.html";
       }}
       onBackToLanding={() => setView("landing")}
       onToggleType={(viewName) => setView(viewName)}
