@@ -2736,7 +2736,117 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
   const total = sub + tax;
   const change = parseFloat(cash || 0) - total;
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const completeSale = async (customer = null) => {
+    // 1. Intercept Card or UPI payments using Razorpay
+    if (pay === "card" || pay === "upi") {
+      setSaving(true);
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast("Razorpay SDK failed to load. Check your internet connection.", "error");
+        setSaving(false);
+        return;
+      }
+
+      try {
+        // Create order on backend Express server (hosted on port 3001)
+        const orderRes = await fetch("http://localhost:3001/api/payment/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: total,
+            cashierName: cashier?.name || "Admin"
+          }),
+        });
+        const orderData = await orderRes.json();
+
+        if (!orderData.success) {
+          toast("Failed to initialize payment order with backend.", "error");
+          setSaving(false);
+          return;
+        }
+
+        // Open Razorpay Checkout Widget
+        const options = {
+          key: orderData.key_id,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "SuperMart Smart POS",
+          description: `Register Checkout Bill - Mode: ${pay.toUpperCase()}`,
+          order_id: orderData.order_id,
+          handler: async function (response) {
+            try {
+              // Verify Payment Signature on backend
+              const verifyRes = await fetch("http://localhost:3001/api/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+
+              if (verifyData.success) {
+                toast("Payment authorized successfully!", "success");
+                // Payment verified - execute core checkout commit
+                await executeCheckoutCommit(customer);
+              } else {
+                toast("Payment verification failed! " + verifyData.error, "error");
+                setSaving(false);
+              }
+            } catch (err) {
+              console.error("Verification error:", err);
+              toast("Verification request failed.", "error");
+              setSaving(false);
+            }
+          },
+          prefill: {
+            name: customer?.name || "Walk-in Customer",
+            email: "store@supermart.com",
+            contact: customer?.phone || "9999999999",
+          },
+          theme: {
+            color: pay === "upi" ? "#14b8a6" : "#3b82f6",
+          },
+          modal: {
+            ondismiss: function () {
+              toast("Payment cancelled by cashier.", "warn");
+              setSaving(false);
+            }
+          }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+      } catch (err) {
+        console.error("Payment setup error:", err);
+        toast("Failed to initialize payment process.", "error");
+        setSaving(false);
+      }
+      return;
+    }
+
+    // Default cash checkout flow
+    await executeCheckoutCommit(customer);
+  };
+
+  const executeCheckoutCommit = async (customer) => {
     setSaving(true);
     // 1. Save customer to Firestore if provided
     if (customer?.phone) {

@@ -16,6 +16,8 @@ build/
 # ─── OS & Editor junk ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.db
+*.db-journal
 *.log
 .idea/
 .vscode/

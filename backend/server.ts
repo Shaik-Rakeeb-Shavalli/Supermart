@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import Papa from 'papaparse';
@@ -6,10 +7,22 @@ import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import * as xlsx from 'xlsx';
 import fs from 'fs';
+import dotenv from 'dotenv';
+// @ts-ignore
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+
+dotenv.config();
 
 const prisma = new PrismaClient();
 const app = express();
 const upload = multer({ dest: 'uploads/' });
+
+// Initialize Razorpay client with credentials from environment
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder_key',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret',
+});
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -181,6 +194,81 @@ app.post('/api/products/confirm-import', async (req: Request, res: Response) => 
   } catch (error) {
     console.error("Transaction error:", error);
     res.status(500).json({ error: "Transaction failed. Rolled back." });
+  }
+});
+
+// ─── RAZORPAY PAYMENT ENDPOINTS ───────────────────────────────────────────────
+
+app.post('/api/payment/order', async (req: Request, res: Response) => {
+  try {
+    const { amount, cashierName } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: "Invalid payment amount" });
+    }
+
+    const options = {
+      amount: Math.round(amount * 100), // Convert INR to paise
+      currency: "INR",
+      receipt: `receipt_pos_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    // Record order in local SQLite/DB with PENDING status
+    await prisma.transaction.create({
+      data: {
+        orderId: order.id,
+        amount: parseFloat(amount),
+        status: "PENDING",
+        cashierName: cashierName || "POS Cashier",
+      }
+    });
+
+    res.json({
+      success: true,
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder_key'
+    });
+  } catch (error) {
+    console.error("Razorpay order creation error:", error);
+    res.status(500).json({ error: "Failed to create payment order" });
+  }
+});
+
+app.post('/api/payment/verify', async (req: Request, res: Response) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret';
+
+    // Verify payment signature authenticity
+    const hmac = crypto.createHmac('sha256', key_secret);
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    const generated_signature = hmac.digest('hex');
+
+    if (generated_signature === razorpay_signature) {
+      // Valid cryptographic signature - payment is authentic
+      await prisma.transaction.update({
+        where: { orderId: razorpay_order_id },
+        data: {
+          status: "SUCCESS",
+          paymentId: razorpay_payment_id
+        }
+      });
+      res.json({ success: true, message: "Payment verified successfully!" });
+    } else {
+      // Signature mismatch
+      await prisma.transaction.update({
+        where: { orderId: razorpay_order_id },
+        data: { status: "FAILED" }
+      });
+      res.status(400).json({ success: false, error: "Invalid signature! Transaction rejected." });
+    }
+  } catch (error) {
+    console.error("Razorpay verification error:", error);
+    res.status(500).json({ error: "Internal server error during verification" });
   }
 });
 

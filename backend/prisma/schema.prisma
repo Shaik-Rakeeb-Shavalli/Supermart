@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Product {
@@ -42,4 +42,14 @@ model ImportErrors {
   rawData      String
   
   import       ImportHistory @relation(fields: [importId], references: [id])
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  orderId     String   @unique  // Razorpay Order ID
+  paymentId   String?           // Razorpay Payment ID (set after verification)
+  amount      Float
+  status      String            // "PENDING", "SUCCESS", "FAILED"
+  cashierName String
+  createdAt   DateTime @default(now())
 }
