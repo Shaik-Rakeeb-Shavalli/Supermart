@@ -51,6 +51,14 @@ const razorpay = new Razorpay({
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+// Strip Vercel multi-service path prefix
+app.use((req, res, next) => {
+  if (req.url.startsWith('/_/backend')) {
+    req.url = req.url.replace('/_/backend', '');
+  }
+  next();
+});
+
 // Validation schema for product rows
 const ProductRowSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -298,3 +306,5 @@ app.post('/api/payment/verify', async (req: Request, res: Response) => {
 
 const PORT = 3001;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+
+export default app;
