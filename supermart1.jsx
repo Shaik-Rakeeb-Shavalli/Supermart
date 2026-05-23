@@ -2763,8 +2763,12 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
       }
 
       try {
-        // Create order on backend Express server (hosted on port 3001)
-        const orderRes = await fetch("http://localhost:3001/api/payment/order", {
+        const apiBase = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+          ? "http://localhost:3001"
+          : "/_/backend";
+
+        // Create order on backend Express server
+        const orderRes = await fetch(`${apiBase}/api/payment/order`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -2791,7 +2795,7 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
           handler: async function (response) {
             try {
               // Verify Payment Signature on backend
-              const verifyRes = await fetch("http://localhost:3001/api/payment/verify", {
+              const verifyRes = await fetch(`${apiBase}/api/payment/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
