@@ -2752,8 +2752,8 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
   };
 
   const completeSale = async (customer = null) => {
-    // 1. Intercept Card or UPI payments using Razorpay
-    if (pay === "card" || pay === "upi") {
+    // 1. Intercept Online payments using Razorpay
+    if (pay === "online") {
       setSaving(true);
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
@@ -2786,7 +2786,7 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
           amount: orderData.amount,
           currency: orderData.currency,
           name: "SuperMart Smart POS",
-          description: `Register Checkout Bill - Mode: ${pay.toUpperCase()}`,
+          description: "Register Checkout Bill - Mode: ONLINE PAYMENT",
           order_id: orderData.order_id,
           handler: async function (response) {
             try {
@@ -2822,7 +2822,7 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
             contact: customer?.phone || "9999999999",
           },
           theme: {
-            color: pay === "upi" ? "#14b8a6" : "#3b82f6",
+            color: "#C9A84C",
           },
           modal: {
             ondismiss: function () {
@@ -3210,8 +3210,8 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
 
             {/* Payment Method Tabs */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-              {[{ id: "cash", icon: Banknote, l: "Cash" }, { id: "upi", icon: QrCode, l: "UPI" }, { id: "card", icon: CreditCard, l: "Card" }].map(m => (
-                <button key={m.id} onClick={() => setPay(m.id)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "10px 8px", borderRadius: 8, cursor: "pointer", background: pay === m.id ? "rgba(201,168,76,0.12)" : "transparent", border: `1px solid ${pay === m.id ? "rgba(201,168,76,0.5)" : P.border}`, color: pay === m.id ? P.gold : P.muted, transition: "all 0.2s", fontFamily: P.fontLabel, letterSpacing: "0.1em", textTransform: "uppercase", fontSize: "0.6rem", boxShadow: pay === m.id ? "0 0 16px rgba(201,168,76,0.15)" : "none" }}>
+              {[{ id: "cash", icon: Banknote, l: "Cash" }, { id: "online", icon: CreditCard, l: "Online Payment" }].map(m => (
+                <button key={m.id} onClick={() => { setPay(m.id); if (m.id === "online") setCash(""); }} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "10px 8px", borderRadius: 8, cursor: "pointer", background: pay === m.id ? "rgba(201,168,76,0.12)" : "transparent", border: `1px solid ${pay === m.id ? "rgba(201,168,76,0.5)" : P.border}`, color: pay === m.id ? P.gold : P.muted, transition: "all 0.2s", fontFamily: P.fontLabel, letterSpacing: "0.1em", textTransform: "uppercase", fontSize: "0.6rem", boxShadow: pay === m.id ? "0 0 16px rgba(201,168,76,0.15)" : "none" }}>
                   <m.icon size={16} /><span>{m.l}</span>
                 </button>
               ))}
@@ -3233,19 +3233,14 @@ const POS = ({ onBack, onSignOut, products, setProducts, cashier, customers, set
               </div>
             )}
 
-            {/* UPI panel */}
-            {pay === "upi" && (
+            {/* Online payment panel */}
+            {pay === "online" && (
               <div style={{ marginBottom: 12, background: "rgba(26,22,16,0.8)", border: `1px solid ${P.border}`, borderRadius: 10, padding: 16, textAlign: "center" }}>
-                <div style={{ width: 80, height: 80, background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 10, margin: "0 auto 10px", display: "flex", alignItems: "center", justifyContent: "center" }}><QrCode size={38} color={P.gold} /></div>
-                <p style={{ color: P.muted, fontSize: 11, fontFamily: P.fontLabel, letterSpacing: "0.1em" }}>Scan to pay ₹{total.toFixed(2)}</p>
-              </div>
-            )}
-
-            {/* Card panel */}
-            {pay === "card" && (
-              <div style={{ marginBottom: 12, background: "rgba(26,22,16,0.8)", border: `1px solid ${P.border}`, borderRadius: 10, padding: 16, textAlign: "center" }}>
-                <CreditCard size={34} color={P.gold} style={{ marginBottom: 10 }} />
-                <p style={{ color: P.muted, fontSize: 11, fontFamily: P.fontLabel, letterSpacing: "0.1em" }}>Tap or swipe on terminal</p>
+                <div style={{ width: 80, height: 80, background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: "50%", margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CreditCard size={32} color={P.gold} />
+                </div>
+                <p style={{ color: P.text, fontSize: 13, fontFamily: P.fontLabel, letterSpacing: "0.05em", marginBottom: 6 }}>Razorpay Integration</p>
+                <p style={{ color: P.muted, fontSize: 11, fontFamily: P.fontBody, lineHeight: 1.5 }}>Secure checkout popup will initialize on confirmation.</p>
               </div>
             )}
 
