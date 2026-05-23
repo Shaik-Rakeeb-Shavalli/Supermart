@@ -304,7 +304,9 @@ app.post('/api/payment/verify', async (req: Request, res: Response) => {
   }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+if (!process.env.VERCEL) {
+  const PORT = 3001;
+  app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+}
 
 export default app;
