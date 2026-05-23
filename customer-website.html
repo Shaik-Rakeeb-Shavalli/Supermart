@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tenor+Sans&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
 
+<!-- Razorpay Checkout Integration -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <style>
 /* ── RESET & TOKENS ─────────────────────────────────────────────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -1562,7 +1565,7 @@ window.addEventListener('scroll', () => {
     }, 4500);
   }
 
-  // ── CHECKOUT FORM ACTION (FIREBASE INTERACTION) ──
+  // ── CHECKOUT FORM ACTION (FIREBASE INTERACTION WITH RAZORPAY INTEGRATION) ──
   submitBtn.addEventListener("click", async () => {
     const name = nameInput.value.trim();
     const phone = phoneInput.value.trim();
@@ -1573,10 +1576,97 @@ window.addEventListener('scroll', () => {
     }
     
     submitBtn.setAttribute("disabled", "true");
-    submitBtn.textContent = "Registering...";
+    submitBtn.textContent = "Processing Payment...";
     
     let total = cart.reduce((s, i) => s + i.price * i.qty, 0);
     
+    try {
+      // 1. Create order on backend Express server (hosted on port 3001)
+      const orderRes = await fetch("http://localhost:3001/api/payment/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          cashierName: `Maison Aurum Customer: ${name}`
+        }),
+      });
+      const orderData = await orderRes.json();
+
+      if (!orderData.success) {
+        showToast("Failed to initialize payment order with backend.");
+        submitBtn.removeAttribute("disabled");
+        submitBtn.textContent = "Request Private Viewing";
+        return;
+      }
+
+      // 2. Open Razorpay Checkout Widget
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Maison Aurum",
+        description: `Private Viewing Selection - Clientele: ${name}`,
+        order_id: orderData.order_id,
+        handler: async function (response) {
+          try {
+            submitBtn.textContent = "Verifying...";
+            // 3. Verify Payment Signature on backend
+            const verifyRes = await fetch("http://localhost:3001/api/payment/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+
+            if (verifyData.success) {
+              showToast("Payment authorized successfully!");
+              
+              // Proceed with standard Firebase records
+              await commitFirebaseTransaction(name, phone, total, response.razorpay_payment_id);
+            } else {
+              showToast("Payment verification failed! " + verifyData.error);
+              submitBtn.removeAttribute("disabled");
+              submitBtn.textContent = "Request Private Viewing";
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            showToast("Payment verification failed. Please contact support.");
+            submitBtn.removeAttribute("disabled");
+            submitBtn.textContent = "Request Private Viewing";
+          }
+        },
+        prefill: {
+          name: name,
+          email: "client@maisonaurum.com",
+          contact: phone,
+        },
+        theme: {
+          color: "#C9A84C", // Luxury Gold matching Maison Aurum branding
+        },
+        modal: {
+          ondismiss: function () {
+            showToast("Payment cancelled by client.");
+            submitBtn.removeAttribute("disabled");
+            submitBtn.textContent = "Request Private Viewing";
+          }
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.error("Razorpay checkout error:", err);
+      showToast("Payment processing error. Dev backend might be offline.");
+      submitBtn.removeAttribute("disabled");
+      submitBtn.textContent = "Request Private Viewing";
+    }
+  });
+
+  const commitFirebaseTransaction = async (name, phone, total, paymentId) => {
     try {
       // 1. PUSH TRANSACTION
       const txData = {
@@ -1584,13 +1674,14 @@ window.addEventListener('scroll', () => {
         customerPhone: phone,
         total: total,
         items: JSON.stringify(cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))),
-        status: "Pending Review",
+        status: "Paid - Pending Review",
+        razorpayPaymentId: paymentId || "",
         createdAt: new Date(),
       };
       await addDoc(collection(db, "transactions"), txData);
       
       // 2. PUSH NOTIFICATION
-      const alertMsg = `✦ Curated Client '${name}' requested private viewing of ${cart.length} items (Total: ₹${total.toLocaleString()})`;
+      const alertMsg = `✦ Private Client '${name}' paid ₹${total.toLocaleString()} and requested private viewing of ${cart.length} items (Payment ID: ${paymentId})`;
       await addDoc(collection(db, "notifications"), {
         msg: alertMsg,
         t: "success",
@@ -1632,7 +1723,7 @@ window.addEventListener('scroll', () => {
       }
       
       // Success flow
-      showToast(`Viewing requested successfully! Our private concierge will contact you shortly.`);
+      showToast(`Payment received! Private viewing requested successfully. Our concierge will contact you shortly.`);
       cart = [];
       updateCartUI();
       closePanel();
@@ -1641,14 +1732,11 @@ window.addEventListener('scroll', () => {
       if (activeCust) {
         setTimeout(() => window.location.reload(), 3500);
       }
-      
     } catch (err) {
-      console.error("Viewing submission error:", err);
-      showToast("An error occurred during submission. Please try again.");
-      submitBtn.removeAttribute("disabled");
-      submitBtn.textContent = "Request Private Viewing";
+      console.error("Firebase transaction commit error:", err);
+      showToast("Order saved locally, but Firebase update failed.");
     }
-  });
+  };
 
   // ── MEMBERSHIP WAITLIST INTERACTION ──
   const mSubmit = document.querySelector(".membership-submit");
