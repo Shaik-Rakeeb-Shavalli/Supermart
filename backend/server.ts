@@ -51,6 +51,10 @@ const razorpay = new Razorpay({
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+app.get('/', (req: Request, res: Response) => {
+  res.json({ status: "online", message: "SuperMart API Server is running." });
+});
+
 // Validation schema for product rows
 const ProductRowSchema = z.object({
   name: z.string().min(1, "Product name is required"),
