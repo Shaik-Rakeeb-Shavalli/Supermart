@@ -14,6 +14,30 @@ import crypto from 'crypto';
 
 dotenv.config();
 
+// ── MANUAL ENVIRONMENT KEY PARSER ──────────────────────────────────────────────
+import path from 'path';
+try {
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const lines = envContent.split(/\r?\n/);
+    for (const line of lines) {
+      if (line.trim().startsWith('#') || !line.includes('=')) continue;
+      const parts = line.split('=');
+      const key = parts[0].trim();
+      const val = parts.slice(1).join('=').trim();
+      if (key === 'RAZORPAY_KEY_ID') {
+        process.env.RAZORPAY_KEY_ID = val;
+      } else if (key === 'RAZORPAY_KEY_SECRET') {
+        process.env.RAZORPAY_KEY_SECRET = val;
+      }
+    }
+    console.log("Manual loader - Active Keys loaded successfully.");
+  }
+} catch (e) {
+  console.error("Manual environment loader error:", e);
+}
+
 const prisma = new PrismaClient();
 const app = express();
 const upload = multer({ dest: 'uploads/' });
