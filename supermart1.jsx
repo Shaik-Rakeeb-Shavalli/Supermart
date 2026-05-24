@@ -3887,8 +3887,22 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         onCustomerLogin(insertRes[0]);
       }
     } catch (err) {
-      console.error("Google login error:", err);
-      setCustErr("Google sign-in failed. Try again.");
+      console.error("Google login error details:", err);
+      let errMsg = "Google sign-in failed. Please try again.";
+      if (err.code === "auth/popup-blocked") {
+        errMsg = "Popup blocked! Please allow popups/redirects for this site in your browser settings and try again.";
+      } else if (err.code === "auth/unauthorized-domain") {
+        errMsg = `This testing domain (${window.location.hostname || "localhost"}) is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+      } else if (err.code === "auth/operation-not-allowed") {
+        errMsg = "Google Sign-In is not enabled. Please enable it in your Firebase Console -> Authentication -> Sign-in method.";
+      } else if (err.code === "auth/popup-closed-by-user") {
+        errMsg = "Sign-in popup was closed before completing auth.";
+      } else if (err.code) {
+        errMsg = `Google Auth Error: ${err.message} (${err.code})`;
+      } else if (err.message) {
+        errMsg = `Google Auth Error: ${err.message}`;
+      }
+      setCustErr(errMsg);
     } finally {
       setCustLoading(false);
     }
@@ -4461,12 +4475,30 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
             {/* HEADER BRANDING */}
             <h2 className="cust-title">Welcome to SuperMart</h2>
             <p className="cust-subtitle">Gourmet VIP Club Sign In</p>
+
+            {/* ERROR BANNER */}
+            {custErr && (
+              <div style={{
+                color: "#FF5555",
+                fontSize: 12,
+                border: "1px solid rgba(255,85,85,0.25)",
+                padding: "10px 14px",
+                borderRadius: 8,
+                background: "rgba(255,85,85,0.06)",
+                fontFamily: "'Inter', sans-serif",
+                marginBottom: 14,
+                lineHeight: "1.4",
+                textAlign: "left"
+              }}>
+                {custErr}
+              </div>
+            )}
             
             {phoneStep === 1 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {/* GOOGLE SIGN IN BUTTON */}
                 <button 
-                  onClick={(e) => triggerParticles(e, handleGoogleSignIn)} 
+                  onClick={(e) => triggerParticles(e, handleGoogleSignIn, true)} 
                   disabled={custLoading} 
                   className="cust-google-btn"
                 >
@@ -4493,7 +4525,6 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
                     style={{ borderColor: custErr ? "#FF5555" : "rgba(201,168,76,0.18)" }}
                     onKeyDown={e => e.key === "Enter" && handlePhoneSendOtp(e)}
                   />
-                  {custErr && <p style={{ color: "#FF5555", fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
                 </div>
                 
                 <button 
@@ -4518,7 +4549,6 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
                     style={{ borderColor: custErr ? "#FF5555" : "rgba(201,168,76,0.18)", textAlign: "center", fontSize: 18, letterSpacing: 4 }}
                     onKeyDown={e => e.key === "Enter" && handlePhoneVerifyOtp(e)}
                   />
-                  {custErr && <p style={{ color: "#FF5555", fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
                 </div>
                 
                 <button 
