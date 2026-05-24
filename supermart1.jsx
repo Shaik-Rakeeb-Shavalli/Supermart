@@ -23,7 +23,8 @@ import LandingPage from "./LandingPage.jsx";
 const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 // ─── FIREBASE HELPERS ─────────────────────────────────────────────────────────
-import { fbGet, fbInsert, fbUpdate, fbDelete } from "./firebase.js";
+import { fbGet, fbInsert, fbUpdate, fbDelete, auth } from "./firebase.js";
+import { GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 // Aliases so all existing code continues to work unchanged
 const sbGet    = (table, _q) => fbGet(table);
@@ -3844,28 +3845,129 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
     if (pin === selected.pin) onStaffLogin(selected);
     else { setStaffErr("Incorrect PIN. Try again."); setPin(""); }
   };
-  
-  const handleCustomerLogin = async () => {
+  // Customer Firebase Auth States
+  const [phoneStep, setPhoneStep] = useState(1); // 1: Send SMS, 2: Enter OTP
+  const [otpCode, setOtpCode] = useState("");
+  const [confirmResult, setConfirmResult] = useState(null);
+
+  const handleGoogleSignIn = async () => {
+    setCustErr("");
+    setCustLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const cleanUserPhone = (user.phoneNumber || "").replace(/[^0-9]/g, "");
+      const userEmail = (user.email || "").toLowerCase();
+
+      // Search for registered customer match
+      const match = customers.find(c => {
+        const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
+        return (cleanUserPhone && (cleanDb === cleanUserPhone || cleanDb.endsWith(cleanUserPhone) || cleanUserPhone.endsWith(cleanDb))) ||
+               (c.email && c.email.toLowerCase() === userEmail);
+      });
+
+      if (match) {
+        onCustomerLogin(match);
+      } else {
+        // Automatically register new loyalty member
+        const newCust = {
+          name: user.displayName || "Google Client",
+          phone: user.phoneNumber || "Google Verified",
+          email: user.email || "",
+          visits: 1,
+          spend: "0.00",
+          tier: "Silver",
+          tag: "Regular",
+          status: "active",
+          lastVisit: new Date().toLocaleDateString("en-IN"),
+        };
+        const insertRes = await sbInsert("customers", newCust);
+        onCustomerLogin(insertRes[0]);
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      setCustErr("Google sign-in failed. Try again.");
+    } finally {
+      setCustLoading(false);
+    }
+  };
+
+  const handlePhoneSendOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     setCustErr("");
     if (!custPhone) { setCustErr("Please enter your phone number."); return; }
     setCustLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    const cleanInput = custPhone.replace(/[^0-9]/g, "");
-    if (!cleanInput) {
-      setCustErr("Invalid phone format. Use digits only.");
+
+    const formattedPhone = custPhone.startsWith("+") ? custPhone : "+91" + custPhone.replace(/[^0-9]/g, "");
+    
+    // Setup invisible Recaptcha Verifier
+    try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible',
+          'callback': (response) => {
+            // solved
+          }
+        });
+      }
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
+      setConfirmResult(confirmation);
+      setPhoneStep(2);
+    } catch (err) {
+      console.error("SMS send error:", err);
+      setCustErr("Failed to send access code. Verify country code (e.g. +91).");
+      if (window.recaptchaVerifier) {
+        try { window.recaptchaVerifier.clear(); } catch(e){}
+        window.recaptchaVerifier = null;
+      }
+      const container = document.getElementById("recaptcha-container");
+      if (container) container.innerHTML = "";
+    } finally {
       setCustLoading(false);
-      return;
     }
-    const match = customers.find(c => {
-      const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
-      return cleanDb === cleanInput || cleanDb.endsWith(cleanInput) || cleanInput.endsWith(cleanDb);
-    });
-    if (match) {
-      onCustomerLogin(match);
-    } else {
-      setCustErr("No registered loyalty customer found with this number.");
+  };
+
+  const handlePhoneVerifyOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setCustErr("");
+    if (otpCode.length !== 6) { setCustErr("Enter the 6-digit access code."); return; }
+    setCustLoading(true);
+
+    try {
+      const result = await confirmResult.confirm(otpCode);
+      const user = result.user;
+
+      const cleanUserPhone = (user.phoneNumber || "").replace(/[^0-9]/g, "");
+      const match = customers.find(c => {
+        const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
+        return cleanDb === cleanUserPhone || cleanDb.endsWith(cleanUserPhone) || cleanUserPhone.endsWith(cleanDb);
+      });
+
+      if (match) {
+        onCustomerLogin(match);
+      } else {
+        // Automatically register new loyalty member
+        const newCust = {
+          name: "Maison Aurum Client",
+          phone: user.phoneNumber,
+          visits: 1,
+          spend: "0.00",
+          tier: "Silver",
+          tag: "Regular",
+          status: "active",
+          lastVisit: new Date().toLocaleDateString("en-IN"),
+        };
+        const insertRes = await sbInsert("customers", newCust);
+        onCustomerLogin(insertRes[0]);
+      }
+    } catch (err) {
+      console.error("OTP verify error:", err);
+      setCustErr("Invalid or expired code. Please try again.");
+    } finally {
+      setCustLoading(false);
     }
-    setCustLoading(false);
   };
 
   const colors = {
@@ -4195,23 +4297,75 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
                 <p style={{ color: colors.muted, fontSize: 12, margin: 0, fontFamily: "'Inter', sans-serif" }}>Loyalty card & shift history</p>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={lbl}>Phone Number</label>
-                <input 
-                  value={custPhone} 
-                  onChange={e => setCustPhone(e.target.value)} 
-                  placeholder="e.g. +91 98765 43210" 
-                  className="login-input" 
-                  style={{ borderColor: custErr ? colors.danger : "rgba(255,255,255,0.1)" }}
-                  onKeyDown={e => e.key === "Enter" && handleCustomerLogin()}
-                />
-                {custErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
+            
+            {phoneStep === 1 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label style={lbl}>Phone Number</label>
+                  <input 
+                    value={custPhone} 
+                    onChange={e => setCustPhone(e.target.value)} 
+                    placeholder="e.g. +91 98765 43210" 
+                    className="login-input" 
+                    style={{ borderColor: custErr ? colors.danger : "rgba(255,255,255,0.1)" }}
+                    onKeyDown={e => e.key === "Enter" && handlePhoneSendOtp(e)}
+                  />
+                  {custErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
+                </div>
+                <button onClick={(e) => triggerParticles(e, () => handlePhoneSendOtp(e))} disabled={custLoading} className="login-btn">
+                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Sending SMS…</> : "Access Loyalty Portal"}
+                </button>
+                
+                <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 0", color: colors.muted, fontSize: 11, fontFamily: "'Inter', sans-serif" }}>
+                  <div style={{ flex: 1, height: 1, background: colors.border }} />
+                  <span>or continue with</span>
+                  <div style={{ flex: 1, height: 1, background: colors.border }} />
+                </div>
+                
+                <button 
+                  onClick={(e) => triggerParticles(e, handleGoogleSignIn)} 
+                  disabled={custLoading} 
+                  className="cashier-card" 
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: `1px solid ${colors.border}`, color: colors.text, cursor: "pointer" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                  </svg>
+                  Sign in with Google
+                </button>
               </div>
-              <button onClick={(e) => triggerParticles(e, handleCustomerLogin)} disabled={custLoading} className="login-btn">
-                {custLoading ? <><Spinner /> Accessing Portal…</> : "Access Loyalty Portal"}
-              </button>
-            </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label style={lbl}>Verification Code</label>
+                  <input 
+                    value={otpCode} 
+                    onChange={e => setOtpCode(e.target.value)} 
+                    placeholder="Enter 6-digit access code" 
+                    className="login-input" 
+                    maxLength={6}
+                    style={{ borderColor: custErr ? colors.danger : "rgba(255,255,255,0.1)", textAlign: "center", fontSize: 18, letterSpacing: 4 }}
+                    onKeyDown={e => e.key === "Enter" && handlePhoneVerifyOtp(e)}
+                  />
+                  {custErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
+                </div>
+                <button onClick={(e) => triggerParticles(e, () => handlePhoneVerifyOtp(e))} disabled={custLoading} className="login-btn">
+                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Verifying…</> : "Verify Access Code"}
+                </button>
+                <button 
+                  onClick={() => { setPhoneStep(1); setOtpCode(""); setCustErr(""); }} 
+                  className="link-btn" 
+                  style={{ alignSelf: "center", color: colors.muted }}
+                >
+                  ← Back to phone input
+                </button>
+              </div>
+            )}
+            
+            <div id="recaptcha-container"></div>
             
             <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: 14 }}>
               <p style={{ ...lbl, marginBottom: 8 }}>Or Select Quick Demo Profile</p>

@@ -1,5 +1,5 @@
-// ─── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -26,6 +26,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 // ─── HELPER: strip undefined/null so Firestore doesn't reject ────────────────
 const clean = (obj) =>
