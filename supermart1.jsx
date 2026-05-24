@@ -3731,10 +3731,10 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       window.addEventListener("resize", resize);
 
       const COLORS = [
-        "rgba(108,99,255,",
-        "rgba(0,212,170,",
-        "rgba(255,77,109,",
-        "rgba(255,181,71,",
+        "rgba(201,168,76,",
+        "rgba(232,201,122,",
+        "rgba(140,128,112,",
+        "rgba(247,243,236,",
       ];
       function rand(a, b) {
         return a + Math.random() * (b - a);
@@ -3772,9 +3772,9 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       }
 
       const orbs = [
-        { x: 0.15, y: 0.25, r: 300, col: "rgba(108,99,255,", base: 0.06, dx: 0.0003, dy: 0.0002 },
-        { x: 0.85, y: 0.7, r: 250, col: "rgba(0,212,170,", base: 0.05, dx: -0.0002, dy: 0.0003 },
-        { x: 0.5, y: 0.5, r: 180, col: "rgba(108,99,255,", base: 0.03, dx: 0.0004, dy: -0.0002 }
+        { x: 0.15, y: 0.25, r: 300, col: "rgba(201,168,76,", base: 0.06, dx: 0.0003, dy: 0.0002 },
+        { x: 0.85, y: 0.7, r: 250, col: "rgba(232,201,122,", base: 0.05, dx: -0.0002, dy: 0.0003 },
+        { x: 0.5, y: 0.5, r: 180, col: "rgba(201,168,76,", base: 0.03, dx: 0.0004, dy: -0.0002 }
       ];
       let t2 = 0;
 
@@ -3811,7 +3811,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(108,99,255,${(1 - dist / 90) * 0.08})`;
+              ctx.strokeStyle = `rgba(201,168,76,${(1 - dist / 90) * 0.08})`;
               ctx.lineWidth = 0.5;
               ctx.stroke();
             }
@@ -3847,8 +3847,8 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       top:${clickY}px;
       width:12px;
       height:12px;
-      border:2px solid #00D4AA;
-      background:rgba(0, 212, 170, 0.15);
+      border:2px solid #E8C97A;
+      background:rgba(232, 201, 122, 0.15);
       border-radius:50%;
       pointer-events:none;
       z-index:9999;
@@ -3868,7 +3868,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         rect.top + rect.height / 2
       }px;
         font-size:${0.6 + Math.random() * 0.8}rem;color:${
-        Math.random() > 0.5 ? "#6C63FF" : "#00D4AA"
+        Math.random() > 0.5 ? "#C9A84C" : "#E8C97A"
       };
         pointer-events:none;z-index:9999;
         animation:particleFly .8s ease-out forwards;
@@ -4081,14 +4081,14 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
   };
 
   const colors = {
-    accent: "#6C63FF",
-    success: "#00D4AA",
+    accent: "#C9A84C",
+    success: "#E8C97A",
     danger: "#FF4D6D",
     text: "#FFFFFF",
-    muted: "#8F8FA3",
-    border: "rgba(255,255,255,0.08)",
-    surf: "rgba(17,19,34,0.72)",
-    bg: "#07070F",
+    muted: "#8C8070",
+    border: "rgba(201,168,76,0.12)",
+    surf: "#13110E",
+    bg: "#0A0906",
   };
 
   const card = {
@@ -4115,30 +4115,30 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tenor+Sans&family=Montserrat:wght@200;300;400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
         #particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-        #cursor{position:fixed;width:20px;height:20px;border:2px solid #6C63FF;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:9999;transition:width .2s,height .2s,background .2s;opacity:0}
-        #cursor.big{width:40px;height:40px;background:rgba(108,99,255,0.1);border-color:#00D4AA}
-        .trail-dot{position:fixed;width:4px;height:4px;background:#6C63FF;border-radius:50%;pointer-events:none;z-index:9998;opacity:.5;transition:opacity .5s}
-        .click-ripple{position:fixed;left:0;top:0;width:12px;height:12px;border:2px solid #00D4AA;background:rgba(0,212,170,0.15);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);animation:rippleExpand .6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards}
-        @keyframes rippleExpand{0%{transform:translate(-50%,-50%) scale(1);border-color:#00D4AA;background:rgba(0, 212, 170, 0.15);opacity:1}100%{transform:translate(-50%,-50%) scale(8);border-color:#6C63FF;background:transparent;opacity:0}}
+        #cursor{position:fixed;width:20px;height:20px;border:2px solid #C9A84C;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:9999;transition:width .2s,height .2s,background .2s;opacity:0}
+        #cursor.big{width:40px;height:40px;background:rgba(201,168,76,0.1);border-color:#E8C97A}
+        .trail-dot{position:fixed;width:4px;height:4px;background:#C9A84C;border-radius:50%;pointer-events:none;z-index:9998;opacity:.5;transition:opacity .5s}
+        .click-ripple{position:fixed;left:0;top:0;width:12px;height:12px;border:2px solid #E8C97A;background:rgba(232,201,122,0.15);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);animation:rippleExpand .6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards}
+        @keyframes rippleExpand{0%{transform:translate(-50%,-50%) scale(1);border-color:#E8C97A;background:rgba(232, 201, 122, 0.15);opacity:1}100%{transform:translate(-50%,-50%) scale(8);border-color:#C9A84C;background:transparent;opacity:0}}
         @keyframes particleFly{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--px),var(--py))}}
 
         /* Premium Forms and Typography theme */
         .login-input {
           width: 100%;
           padding: 12px 16px;
-          background: rgba(7,7,17,0.6);
-          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(10,9,6,0.6);
+          border: 1px solid rgba(201,168,76,0.18);
           border-radius: 10px;
           color: #fff;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Montserrat', sans-serif;
           font-size: 14px;
           outline: none;
           box-sizing: border-box;
           transition: all 0.25s;
         }
         .login-input:focus {
-          border-color: #6C63FF;
-          box-shadow: 0 0 12px rgba(108,99,255,0.25);
+          border-color: #C9A84C;
+          box-shadow: 0 0 12px rgba(201,168,76,0.25);
         }
         
         .login-btn {
@@ -4150,36 +4150,21 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
           border-radius: 10px;
           font-size: 0.95rem;
           font-weight: 700;
-          font-family: 'Syne', sans-serif;
+          font-family: 'Tenor Sans', sans-serif;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
           overflow: hidden;
-          background: #000;
-          border: 1px solid rgba(255,255,255,0.15);
-          color: #fff;
+          background: #C9A84C;
+          border: none;
+          color: #0A0906;
           width: 100%;
-          box-shadow: 0 0 0 0 rgba(108,99,255,0);
-        }
-        .login-btn::before {
-          content: '';
-          position: absolute;
-          inset: -1px;
-          border-radius: 10px;
-          padding: 1px;
-          background: linear-gradient(to right, #6C63FF, #00D4AA);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          opacity: 0.45;
-          transition: opacity 0.3s;
-        }
-        .login-btn:hover::before {
-          opacity: 1;
+          box-shadow: 0 4px 15px rgba(201,168,76,0.25);
         }
         .login-btn:hover {
+          background: #E8C97A;
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(108,99,255,0.25);
+          box-shadow: 0 8px 24px rgba(201,168,76,0.4);
         }
         .login-btn:active {
           transform: translateY(0);
@@ -4194,7 +4179,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
           border-radius: 10px;
           font-size: 0.95rem;
           font-weight: 700;
-          font-family: 'Syne', sans-serif;
+          font-family: 'Tenor Sans', sans-serif;
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.05);
           color: #555566;
@@ -4208,8 +4193,8 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
           align-items: center;
           gap: 14px;
           padding: 12px 16px;
-          background: rgba(7,7,17,0.4);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(10,9,6,0.4);
+          border: 1px solid rgba(201,168,76,0.12);
           border-radius: 12px;
           cursor: pointer;
           text-align: left;
@@ -4219,33 +4204,33 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         }
         .cashier-card:hover {
           transform: translateY(-2px);
-          border-color: #6C63FF;
-          background: rgba(108,99,255,0.05);
-          box-shadow: 0 6px 18px rgba(108,99,255,0.15);
+          border-color: #C9A84C;
+          background: rgba(201,168,76,0.05);
+          box-shadow: 0 6px 18px rgba(201,168,76,0.15);
         }
 
         .change-btn {
           background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
+          border: 1px solid rgba(201,168,76,0.20);
           border-radius: 8px;
           padding: 6px 12px;
-          color: #8F8FA3;
-          font-family: 'Syne', sans-serif;
+          color: #C9A84C;
+          font-family: 'Tenor Sans', sans-serif;
           font-size: 12px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
         }
         .change-btn:hover {
-          background: rgba(255,255,255,0.1);
-          border-color: #6C63FF;
+          background: rgba(201,168,76,0.1);
+          border-color: #E8C97A;
           color: #fff;
         }
 
         .pin-key {
           padding: 16px 0;
-          background: rgba(7,7,17,0.3);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(10,9,6,0.3);
+          border: 1px solid rgba(201,168,76,0.12);
           border-radius: 10px;
           color: #fff;
           font-size: 20px;
@@ -4256,7 +4241,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         }
         .pin-key:hover {
           background: rgba(255,255,255,0.06);
-          border-color: #00D4AA;
+          border-color: #E8C97A;
           transform: scale(1.05);
         }
         .pin-key:active {
@@ -4266,8 +4251,8 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         .link-btn {
           background: none;
           border: none;
-          color: #8F8FA3;
-          font-family: 'Syne', sans-serif;
+          color: #8C8070;
+          font-family: 'Tenor Sans', sans-serif;
           font-size: 13px;
           cursor: pointer;
           font-weight: 600;
@@ -4275,7 +4260,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
           transition: color 0.25s;
         }
         .link-btn:hover {
-          color: #6C63FF;
+          color: #C9A84C;
         }
 
         /* ── CUSTOMER PORTAL LUXURY REDESIGN ── */
@@ -4466,94 +4451,97 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         <p style={{ color: colors.muted, fontSize: 13, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{type === "admin" ? "Admin Dashboard Access" : type === "staff" ? "Staff & POS Shift Portal" : "Customer Loyalty Portal"}</p>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 400, alignItems: "center", position: "relative", zIndex: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 440, alignItems: "center", position: "relative", zIndex: 10 }}>
         {type === "admin" ? (
           /* ── ADMIN PANEL ── */
-          <div style={card}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 16, borderBottom: `1px solid ${colors.border}` }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${colors.accent}20`, display: "flex", alignItems: "center", justifyContent: "center" }}><UserCog size={18} color={colors.accent} /></div>
-              <div>
-                <p style={{ color: colors.text, fontWeight: 700, fontSize: 16, margin: 0, fontFamily: "'Syne', sans-serif" }}>Admin Portal</p>
-                <p style={{ color: colors.muted, fontSize: 12, margin: 0, fontFamily: "'Inter', sans-serif" }}>Full dashboard access</p>
-              </div>
-            </div>
+          <div className="cust-login-card">
+            {/* CLOSE BUTTON */}
+            <button className="cust-close-btn" onClick={(e) => triggerParticles(e, onBackToLanding)} aria-label="Close portal">
+              &times;
+            </button>
+
+            {/* HEADER BRANDING */}
+            <h2 className="cust-title" style={{ fontSize: "1.9rem" }}>Admin Portal</h2>
+            <p className="cust-subtitle">Full dashboard access</p>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={lbl}>Email</label>
-                <input value={email} onChange={e => setEmail(e.target.value)} className="login-input" />
+              <div className="cust-input-group">
+                <label className="cust-label">Email</label>
+                <input value={email} onChange={e => setEmail(e.target.value)} className="cust-input" placeholder="admin@supermart.in" />
               </div>
-              <div>
-                <label style={lbl}>Password</label>
+              <div className="cust-input-group">
+                <label className="cust-label">Password</label>
                 <div style={{ position: "relative" }}>
                   <input type={showAdminPw ? "text" : "password"} value={password}
-                    className="login-input"
+                    className="cust-input"
                     onChange={e => setPassword(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleAdminLogin()}
                     placeholder="Enter password"
-                    style={{ paddingRight: 40, borderColor: adminErr ? colors.danger : "rgba(255,255,255,0.1)" }} />
+                    style={{ paddingRight: 40, borderColor: adminErr ? "#FF5555" : "rgba(201,168,76,0.18)" }} />
                   <button type="button" onClick={() => setShowAdminPw(p => !p)}
-                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: colors.muted, display: "flex", padding: 0 }}>
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#8C8070", display: "flex", padding: 0 }}>
                     {showAdminPw ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
-                {adminErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{adminErr}</p>}
+                {adminErr && <p style={{ color: "#FF5555", fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{adminErr}</p>}
               </div>
-              <button onClick={(e) => triggerParticles(e, handleAdminLogin)} disabled={adminLoading} className="login-btn">
-                {adminLoading ? <><Spinner /> Signing in…</> : "Sign In to Dashboard"}
+              <button onClick={(e) => triggerParticles(e, handleAdminLogin)} disabled={adminLoading} className="cust-submit-btn">
+                {adminLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Signing in…</> : "Sign In to Dashboard"}
               </button>
             </div>
           </div>
         ) : type === "staff" ? (
           /* ── STAFF / POS PANEL ── */
-          <div style={card}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 16, borderBottom: `1px solid ${colors.border}` }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "#00B87A18", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={18} color="#00B87A" /></div>
-              <div>
-                <p style={{ color: colors.text, fontWeight: 700, fontSize: 16, margin: 0, fontFamily: "'Syne', sans-serif" }}>Staff / POS Login</p>
-                <p style={{ color: colors.muted, fontSize: 12, margin: 0, fontFamily: "'Inter', sans-serif" }}>Cashier & shift access</p>
-              </div>
-            </div>
+          <div className="cust-login-card">
+            {/* CLOSE BUTTON */}
+            <button className="cust-close-btn" onClick={(e) => triggerParticles(e, onBackToLanding)} aria-label="Close portal">
+              &times;
+            </button>
+
+            {/* HEADER BRANDING */}
+            <h2 className="cust-title" style={{ fontSize: "1.9rem" }}>Staff / POS Login</h2>
+            <p className="cust-subtitle">Cashier & shift access</p>
 
             {!selected ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {cashiers.length === 0 && <p style={{ color: colors.muted, textAlign: "center", padding: 20, fontSize: 13, fontFamily: "'Inter', sans-serif" }}>No staff added yet. Go to Admin → Staff to add cashiers.</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto", paddingRight: 4, width: "100%" }}>
+                {cashiers.length === 0 && <p style={{ color: "#8C8070", textAlign: "center", padding: 20, fontSize: 13, fontFamily: "'Inter', sans-serif" }}>No staff added yet. Go to Admin → Staff to add cashiers.</p>}
                 {cashiers.map(c => (
-                  <button key={c.id} onClick={(e) => triggerParticles(e, () => { setSelected(c); setPin(""); setStaffErr(""); }, true)} className="cashier-card">
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: `${colors.accent}18`, display: "flex", alignItems: "center", justifyContent: "center", color: colors.accent, fontSize: 16, fontWeight: 800, flexShrink: 0, fontFamily: "'Syne', sans-serif" }}>{c.name[0]}</div>
+                  <button key={c.id} onClick={(e) => triggerParticles(e, () => { setSelected(c); setPin(""); setStaffErr(""); }, true)} className="cashier-card" style={{ border: "1px solid rgba(201,168,76,0.12)", background: "rgba(255,255,255,0.01)" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(201,168,76,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontSize: 16, fontWeight: 800, flexShrink: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{c.name[0]}</div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ color: colors.text, fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Syne', sans-serif" }}>{c.name}</p>
-                      <p style={{ color: colors.muted, fontSize: 12, margin: "2px 0 0", fontFamily: "'Inter', sans-serif" }}>{c.role} · {c.counter}</p>
+                      <p style={{ color: "#F7F3EC", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Tenor Sans', sans-serif", textAlign: "left" }}>{c.name}</p>
+                      <p style={{ color: "#8C8070", fontSize: 12, margin: "2px 0 0", fontFamily: "'Inter', sans-serif", textAlign: "left" }}>{c.role} · {c.counter}</p>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 6, background: c.status === "active" ? "#00B87A18" : "#FFB54718", color: c.status === "active" ? "#00B87A" : "#FFB547", flexShrink: 0, fontFamily: "'Syne', sans-serif" }}>
+                    <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 6, background: c.status === "active" ? "rgba(0,184,122,0.15)" : "rgba(255,181,71,0.15)", color: c.status === "active" ? "#00B87A" : "#FFB547", flexShrink: 0, fontFamily: "'Tenor Sans', sans-serif" }}>
                       {c.status === "active" ? "On Shift" : "On Break"}
                     </span>
                   </button>
                 ))}
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "rgba(7,7,17,0.4)", border: `1px solid ${colors.border}`, borderRadius: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 9, background: `${colors.accent}18`, display: "flex", alignItems: "center", justifyContent: "center", color: colors.accent, fontWeight: 800, fontSize: 15, fontFamily: "'Syne', sans-serif" }}>{selected.name[0]}</div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ color: colors.muted, fontSize: 11, margin: 0, fontFamily: "'Inter', sans-serif" }}>{selected.role}</p>
-                    <p style={{ color: colors.text, fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Syne', sans-serif" }}>{selected.name}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "rgba(10,9,6,0.4)", border: "1px solid rgba(201,168,76,0.18)", borderRadius: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(201,168,76,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontWeight: 800, fontSize: 15, fontFamily: "'Tenor Sans', sans-serif" }}>{selected.name[0]}</div>
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <p style={{ color: "#8C8070", fontSize: 11, margin: 0, fontFamily: "'Inter', sans-serif" }}>{selected.role}</p>
+                    <p style={{ color: "#F7F3EC", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{selected.name}</p>
                   </div>
-                  <button onClick={(e) => triggerParticles(e, () => { setSelected(null); setPin(""); setStaffErr(""); }, true)} className="change-btn">Change</button>
+                  <button onClick={(e) => triggerParticles(e, () => { setSelected(null); setPin(""); setStaffErr(""); }, true)} className="change-btn" style={{ borderColor: "rgba(201,168,76,0.3)", color: "#C9A84C" }}>Change</button>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", gap: 14 }}>
-                  {[0,1,2,3].map(i => <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: i < pin.length ? colors.accent : colors.border, transition: "background 0.15s" }} />)}
+                  {[0,1,2,3].map(i => <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: i < pin.length ? "#C9A84C" : "rgba(201,168,76,0.18)", transition: "background 0.15s" }} />)}
                 </div>
-                {staffErr && <p style={{ color: colors.danger, fontSize: 12, textAlign: "center", margin: 0, fontFamily: "'Inter', sans-serif" }}>{staffErr}</p>}
+                {staffErr && <p style={{ color: "#FF5555", fontSize: 12, textAlign: "center", margin: 0, fontFamily: "'Inter', sans-serif" }}>{staffErr}</p>}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
                   {[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map((d, i) => (
                     d === "" ? <div key={i} /> : (
-                      <button key={i} onClick={(e) => d === "⌫" ? triggerParticles(e, delDigit, true) : triggerParticles(e, () => addDigit(String(d)), true)} className="pin-key">
+                      <button key={i} onClick={(e) => d === "⌫" ? triggerParticles(e, delDigit, true) : triggerParticles(e, () => addDigit(String(d)), true)} className="pin-key" style={{ borderColor: "rgba(201,168,76,0.12)", color: "#F7F3EC" }}>
                         {d}
                       </button>
                     )
                   ))}
                 </div>
-                <button onClick={(e) => triggerParticles(e, tryStaffLogin)} className={pin.length === 4 ? "login-btn" : "login-btn-disabled"}>
+                <button onClick={(e) => triggerParticles(e, tryStaffLogin)} className={pin.length === 4 ? "cust-submit-btn" : "login-btn-disabled"}>
                   {pin.length === 4 ? "→ Start Shift" : `Enter ${4 - pin.length} more digit${4 - pin.length !== 1 ? "s" : ""}`}
                 </button>
               </div>
@@ -4734,7 +4722,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
               <button onClick={(e) => triggerParticles(e, () => onToggleType("admin-login"))} className="link-btn" style={{ color: colors.accent }}>
                 Admin Portal →
               </button>
-              <button onClick={(e) => triggerParticles(e, () => onToggleType("staff-login"))} className="link-btn" style={{ color: "#00B87A" }}>
+              <button onClick={(e) => triggerParticles(e, () => onToggleType("staff-login"))} className="link-btn" style={{ color: colors.success }}>
                 Staff Portal →
               </button>
             </>
