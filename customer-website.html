@@ -2731,7 +2731,6 @@ window.addEventListener('scroll', () => {
     if (phoneInput) phoneInput.value = activeCust.phone || "";
     if (checkoutAddress) checkoutAddress.value = activeCust.address || "";
     if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
-    if (authNavBtn) authNavBtn.textContent = "Log Out";
     
     // Show greeting marquee with correct member tier
     if (vipMarquee) {
@@ -2936,8 +2935,6 @@ window.addEventListener('scroll', () => {
         vipMarquee.style.display = "block";
       }
       
-      if (authNavBtn) authNavBtn.textContent = "Log Out";
-      
       // Close the modal
       if (authModal) authModal.classList.remove("active");
       
@@ -3053,7 +3050,7 @@ window.addEventListener('scroll', () => {
   // Auth State Listener to sync UI elements
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      if (authNavBtn) authNavBtn.textContent = "Log Out";
+      if (authNavBtn) authNavBtn.textContent = "Sign Out";
       const name = user.displayName || "SuperMart VIP Client";
       const contact = user.phoneNumber || user.email || "Verified";
       
@@ -3074,7 +3071,7 @@ window.addEventListener('scroll', () => {
     } else {
       const activeSessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
       if (activeSessionCust) {
-        if (authNavBtn) authNavBtn.textContent = "Log Out";
+        if (authNavBtn) authNavBtn.textContent = "Sign Out";
         if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
       } else {
         if (authNavBtn) authNavBtn.textContent = "Log In";
