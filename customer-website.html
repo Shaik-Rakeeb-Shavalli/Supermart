@@ -656,7 +656,7 @@ body::after{
     <li><a href="/index.html" style="color: var(--gold); font-weight: 500;">Portal Home</a></li>
     <li><a href="#" id="vip-logout-btn" style="color: #ff4d6d; font-weight: 500; display: none; text-shadow: 0 0 8px rgba(255,77,109,0.3)">Logout</a></li>
   </ul>
-  <button class="nav-cta">Request Access</button>
+  <button class="nav-cta" id="auth-nav-btn">Log In</button>
 </nav>
 
 <!-- ── HERO ─────────────────────────────────────────────────────────── -->
@@ -1368,6 +1368,178 @@ window.addEventListener('scroll', () => {
   color: var(--gold-light); text-transform: uppercase;
   display: none; position: relative; z-index: 10;
 }
+
+/* ── CUSTOMER AUTH MODAL ────────────────────────────────────────────── */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 9, 6, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-sharp);
+}
+.auth-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.auth-modal-content {
+  background: var(--ink);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.85), 0 0 40px rgba(201,168,76,0.06);
+  border-radius: 20px;
+  padding: 2.8rem 2.4rem;
+  width: 90%;
+  max-width: 420px;
+  transform: translateY(30px) scale(0.96);
+  transition: transform 0.4s var(--ease-sharp);
+  text-align: center;
+  position: relative;
+}
+.auth-modal-overlay.active .auth-modal-content {
+  transform: translateY(0) scale(1);
+}
+.auth-close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: transparent;
+  border: none;
+  color: var(--ash);
+  cursor: pointer;
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: color 0.25s, transform 0.25s;
+}
+.auth-close-btn:hover {
+  color: var(--gold-light);
+  transform: scale(1.1);
+}
+.auth-title {
+  font-family: var(--f-display);
+  font-size: 2.2rem;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--ivory);
+  margin-bottom: 0.4rem;
+}
+.auth-subtitle {
+  font-family: var(--f-label);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2.2rem;
+}
+
+/* Auth Buttons */
+.auth-google-btn {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--ivory);
+  font-family: var(--f-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s var(--ease-sharp);
+  margin-bottom: 1.6rem;
+}
+.auth-google-btn:hover {
+  background: var(--silk);
+  border-color: var(--gold);
+  box-shadow: 0 4px 24px rgba(201,168,76,0.18);
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ash);
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+}
+.auth-divider::before, .auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(201,168,76,0.12);
+}
+
+/* Phone input forms */
+.auth-input-group {
+  margin-bottom: 1.4rem;
+  text-align: left;
+}
+.auth-label {
+  display: block;
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 6px;
+}
+.auth-input {
+  width: 100%;
+  padding: 13px;
+  background: rgba(10,9,6,0.6);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--ivory);
+  font-family: var(--f-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+.auth-input:focus {
+  border-color: var(--gold);
+}
+.auth-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  border: none;
+  border-radius: 8px;
+  color: var(--obsidian);
+  font-family: var(--f-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(201,168,76,0.25);
+}
+.auth-submit-btn:hover {
+  background: var(--gold-light);
+  box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+}
+.auth-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#recaptcha-container {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
 </style>
 
 <!-- Dynamic Selection Trigger & Drawer Elements -->
@@ -1404,12 +1576,61 @@ window.addEventListener('scroll', () => {
     </div>
     <button class="checkout-btn" id="checkout-submit-btn" disabled>Request Private Viewing</button>
   </div>
+<!-- AUTHENTICATION MODAL -->
+<div class="auth-modal-overlay" id="auth-modal">
+  <div class="auth-modal-content">
+    <button class="auth-close-btn" id="auth-close-btn">&times;</button>
+    <h3 class="auth-title">Welcome to Aurum</h3>
+    <p class="auth-subtitle">Connoisseur Club Sign In</p>
+    
+    <!-- Google Auth Button -->
+    <button class="auth-google-btn" id="auth-google-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="margin-right: 8px;">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+    
+    <div class="auth-divider">or use your phone</div>
+    
+    <!-- Phone Form -->
+    <div id="phone-auth-step1">
+      <div class="auth-input-group">
+        <label class="auth-label">Phone Number</label>
+        <input class="auth-input" type="tel" id="auth-phone-input" placeholder="+91 99999 99999">
+      </div>
+      <button class="auth-submit-btn" id="auth-send-otp-btn">Send Access Code</button>
+      <div id="recaptcha-container"></div>
+    </div>
+    
+    <!-- OTP Form (Hidden initially) -->
+    <div id="phone-auth-step2" style="display: none;">
+      <div class="auth-input-group">
+        <label class="auth-label">One-Time Access Code</label>
+        <input class="auth-input" type="text" id="auth-otp-input" placeholder="6-digit code" maxlength="6">
+      </div>
+      <button class="auth-submit-btn" id="auth-verify-otp-btn">Verify Access Code</button>
+      <button class="auth-google-btn" id="auth-back-btn" style="border: none; margin-top: 12px; margin-bottom: 0;">Back to Sign In</button>
+    </div>
+  </div>
 </div>
 
 <!-- Firebase Real-Time Synchronization Module -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { 
+    getAuth, 
+    signInWithPopup, 
+    GoogleAuthProvider, 
+    RecaptchaVerifier, 
+    signInWithPhoneNumber, 
+    onAuthStateChanged, 
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyDEcTF2geh8poUlsy68TlvC51xybdgaXro",
@@ -1423,6 +1644,7 @@ window.addEventListener('scroll', () => {
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
 
   // Cart State
   let cart = [];
@@ -1552,6 +1774,257 @@ window.addEventListener('scroll', () => {
       });
     }
   }
+
+  // ── FIREBASE AUTHENTICATION LOG IN/OUT TRIGGER LOGIC ──
+  const authModal = document.getElementById("auth-modal");
+  const authNavBtn = document.getElementById("auth-nav-btn");
+  const authCloseBtn = document.getElementById("auth-close-btn");
+  const authGoogleBtn = document.getElementById("auth-google-btn");
+
+  const phoneAuthStep1 = document.getElementById("phone-auth-step1");
+  const phoneAuthStep2 = document.getElementById("phone-auth-step2");
+  const authPhoneInput = document.getElementById("auth-phone-input");
+  const authSendOtpBtn = document.getElementById("auth-send-otp-btn");
+  const authOtpInput = document.getElementById("auth-otp-input");
+  const authVerifyOtpBtn = document.getElementById("auth-verify-otp-btn");
+  const authBackBtn = document.getElementById("auth-back-btn");
+
+  let confirmationResult = null;
+
+  function resetPhoneAuthFlow() {
+    if (phoneAuthStep1) phoneAuthStep1.style.display = "block";
+    if (phoneAuthStep2) phoneAuthStep2.style.display = "none";
+    if (authPhoneInput) authPhoneInput.value = "";
+    if (authOtpInput) authOtpInput.value = "";
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch(e){}
+      window.recaptchaVerifier = null;
+    }
+    const container = document.getElementById("recaptcha-container");
+    if (container) container.innerHTML = "";
+  }
+
+  // Toggle modal open/close
+  if (authNavBtn) {
+    authNavBtn.addEventListener("click", () => {
+      // If user is logged in, act as sign out
+      if (auth.currentUser) {
+        signOut(auth).then(() => {
+          sessionStorage.removeItem("supermart_active_customer");
+          showToast("Signed out successfully.");
+        }).catch(err => {
+          console.error("Sign out error:", err);
+          showToast("Sign out failed.");
+        });
+      } else {
+        const activeSessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+        if (activeSessionCust) {
+          // If we have a local session active, clear it to sign out
+          sessionStorage.removeItem("supermart_active_customer");
+          showToast("Session closed successfully.");
+          window.location.reload();
+        } else {
+          // Otherwise open the login modal
+          authModal.classList.add("active");
+          resetPhoneAuthFlow();
+        }
+      }
+    });
+  }
+
+  if (authCloseBtn) {
+    authCloseBtn.addEventListener("click", () => {
+      authModal.classList.remove("active");
+    });
+  }
+
+  // Close when clicking outside content overlay
+  if (authModal) {
+    authModal.addEventListener("click", (e) => {
+      if (e.target === authModal) {
+        authModal.classList.remove("active");
+      }
+    });
+  }
+
+  if (authBackBtn) {
+    authBackBtn.addEventListener("click", resetPhoneAuthFlow);
+  }
+
+  // Google Provider Sign-in
+  if (authGoogleBtn) {
+    authGoogleBtn.addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        authGoogleBtn.disabled = true;
+        authGoogleBtn.textContent = "Connecting to Google...";
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Sync with Session Storage so it matches regular Concierge VIP features
+        const activeCust = {
+          name: user.displayName || "Google Client",
+          phone: user.phoneNumber || user.email || "Google Verified",
+          spend: 155000,
+          points: 1550,
+          tier: "Platinum",
+          tag: "VIP Customer"
+        };
+        sessionStorage.setItem("supermart_active_customer", JSON.stringify(activeCust));
+        
+        authModal.classList.remove("active");
+        showToast(`Welcome back, ${activeCust.name}!`);
+        
+        // Update inputs
+        if (nameInput) nameInput.value = activeCust.name;
+        if (phoneInput) phoneInput.value = activeCust.phone;
+        
+        // Update VIP marquee
+        if (vipMarquee) {
+          vipMarquee.textContent = `Welcome back, VIP Client: ${activeCust.name} · Account Verified via Google ✦`;
+          vipMarquee.style.display = "block";
+        }
+      } catch (err) {
+        console.error("Google Sign-In Error:", err);
+        showToast("Google Authentication failed.");
+      } finally {
+        authGoogleBtn.disabled = false;
+        authGoogleBtn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="margin-right: 8px;">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        `;
+      }
+    });
+  }
+
+  // Phone Sign-in with Recaptcha
+  function initRecaptcha() {
+    if (window.recaptchaVerifier) return;
+    try {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved
+        }
+      });
+    } catch (e) {
+      console.error("Recaptcha initialization error:", e);
+    }
+  }
+
+  if (authSendOtpBtn) {
+    authSendOtpBtn.addEventListener("click", async () => {
+      const phoneNumber = authPhoneInput.value.trim();
+      if (!phoneNumber.startsWith("+")) {
+        showToast("Include country code (e.g., +919999999999)");
+        return;
+      }
+      
+      try {
+        authSendOtpBtn.disabled = true;
+        authSendOtpBtn.textContent = "Sending SMS...";
+        initRecaptcha();
+        
+        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        showToast("Access code sent! Check your SMS.");
+        
+        if (phoneAuthStep1) phoneAuthStep1.style.display = "none";
+        if (phoneAuthStep2) phoneAuthStep2.style.display = "block";
+      } catch (err) {
+        console.error("SMS send error:", err);
+        showToast("Failed to send access code. Try again.");
+        resetPhoneAuthFlow();
+      } finally {
+        authSendOtpBtn.disabled = false;
+        authSendOtpBtn.textContent = "Send Access Code";
+      }
+    });
+  }
+
+  if (authVerifyOtpBtn) {
+    authVerifyOtpBtn.addEventListener("click", async () => {
+      const code = authOtpInput.value.trim();
+      if (code.length !== 6) {
+        showToast("Enter the 6-digit verification code");
+        return;
+      }
+      
+      try {
+        authVerifyOtpBtn.disabled = true;
+        authVerifyOtpBtn.textContent = "Verifying...";
+        
+        const result = await confirmationResult.confirm(code);
+        const user = result.user;
+        
+        const activeCust = {
+          name: "Maison Aurum Client",
+          phone: user.phoneNumber,
+          spend: 95000,
+          points: 950,
+          tier: "Gold",
+          tag: "Loyal Client"
+        };
+        sessionStorage.setItem("supermart_active_customer", JSON.stringify(activeCust));
+        
+        authModal.classList.remove("active");
+        showToast("Access verified! Welcome.");
+        
+        // Update inputs
+        if (nameInput) nameInput.value = activeCust.name;
+        if (phoneInput) phoneInput.value = activeCust.phone;
+        
+        // Update VIP marquee
+        if (vipMarquee) {
+          vipMarquee.textContent = `Welcome back, VIP Client: ${activeCust.name} · Phone: ${activeCust.phone} ✦`;
+          vipMarquee.style.display = "block";
+        }
+      } catch (err) {
+        console.error("OTP verification error:", err);
+        showToast("Invalid code. Please try again.");
+      } finally {
+        authVerifyOtpBtn.disabled = false;
+        authVerifyOtpBtn.textContent = "Verify Access Code";
+      }
+    });
+  }
+
+  // Auth State Listener to sync UI elements
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in via Firebase Auth
+      if (authNavBtn) authNavBtn.textContent = "Sign Out";
+      const name = user.displayName || "Maison Aurum Client";
+      const contact = user.phoneNumber || user.email || "Verified";
+      
+      if (nameInput && !nameInput.value) nameInput.value = name;
+      if (phoneInput && !phoneInput.value) phoneInput.value = contact;
+      
+      if (vipMarquee && vipMarquee.style.display !== "block") {
+        vipMarquee.textContent = `Welcome back, VIP Client: ${name} · Access Verified ✦`;
+        vipMarquee.style.display = "block";
+      }
+      
+      if (vipLogoutBtn) vipLogoutBtn.style.display = "none";
+    } else {
+      // User is signed out of Firebase Auth
+      const activeSessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+      if (activeSessionCust) {
+        if (authNavBtn) authNavBtn.textContent = "Sign Out";
+      } else {
+        if (authNavBtn) authNavBtn.textContent = "Log In";
+        if (nameInput) nameInput.value = "";
+        if (phoneInput) phoneInput.value = "";
+        if (vipMarquee) vipMarquee.style.display = "none";
+      }
+    }
+  });
 
   // ── TOAST TRIGGER ──
   function showToast(msg) {
