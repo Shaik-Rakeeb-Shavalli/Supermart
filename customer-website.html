@@ -2198,6 +2198,12 @@ window.addEventListener('scroll', () => {
         Pin Delivery Location on Map
       </button>
 
+      <!-- Get Live Location Action -->
+      <button type="button" class="map-toggle-btn" id="checkout-gps-btn" onclick="getCheckoutLiveLocation()" style="margin-top: 0.4rem;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+        Use Current Device Location
+      </button>
+
       <!-- Expandable Map Panel -->
       <div id="checkout-map-panel" style="display: none; height: 180px; border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border); margin-top: 0.5rem; position: relative;">
         <div id="checkout-map" style="width: 100%; height: 100%;"></div>
@@ -2251,6 +2257,12 @@ window.addEventListener('scroll', () => {
       <button type="button" class="map-toggle-btn" id="profile-map-toggle-btn" onclick="toggleProfileMap()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
         Select Location on Interactive Map
+      </button>
+
+      <!-- Get Live Location Action -->
+      <button type="button" class="map-toggle-btn" id="profile-gps-btn" onclick="getProfileLiveLocation()" style="margin-top: 0.4rem;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+        Use Current Device Location
       </button>
 
       <!-- Expandable Map Panel -->
@@ -3818,11 +3830,114 @@ window.addEventListener('scroll', () => {
     });
   }
 
+  // ── DEVICE LIVE GEOLOCATION SUITE ─────────────────────────────────────────
+  window.getCheckoutLiveLocation = () => {
+    if (!navigator.geolocation) {
+      showToast("Geolocation is not supported by your browser.");
+      return;
+    }
+    
+    const gpsBtn = document.getElementById("checkout-gps-btn");
+    if (gpsBtn) {
+      gpsBtn.disabled = true;
+      gpsBtn.textContent = "Locating Device...";
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Auto-open and initialize the map if not already done
+        const mapPanel = document.getElementById("checkout-map-panel");
+        if (mapPanel && mapPanel.style.display === "none") {
+          mapPanel.style.display = "block";
+          initCheckoutMap();
+        }
+        
+        if (checkoutMap && checkoutMarker) {
+          checkoutMap.setView([lat, lng], 15);
+          checkoutMarker.setLatLng([lat, lng]);
+          setTimeout(() => checkoutMap.invalidateSize(), 100);
+        }
+        
+        await reverseGeocode(lat, lng);
+        showToast("Live location loaded successfully!");
+        
+        if (gpsBtn) {
+          gpsBtn.disabled = false;
+          gpsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg> Use Current Device Location`;
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error:", error);
+        showToast("Unable to retrieve live location. Check browser permissions.");
+        if (gpsBtn) {
+          gpsBtn.disabled = false;
+          gpsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg> Use Current Device Location`;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  };
+
+  window.getProfileLiveLocation = () => {
+    if (!navigator.geolocation) {
+      showToast("Geolocation is not supported by your browser.");
+      return;
+    }
+    
+    const gpsBtn = document.getElementById("profile-gps-btn");
+    if (gpsBtn) {
+      gpsBtn.disabled = true;
+      gpsBtn.textContent = "Locating Device...";
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Auto-open and initialize the map if not already done
+        const mapPanel = document.getElementById("profile-map-panel");
+        if (mapPanel && mapPanel.style.display === "none") {
+          mapPanel.style.display = "block";
+          initProfileMap();
+        }
+        
+        if (profileMap && profileMarker) {
+          profileMap.setView([lat, lng], 15);
+          profileMarker.setLatLng([lat, lng]);
+          setTimeout(() => profileMap.invalidateSize(), 100);
+        }
+        
+        await reverseGeocodeProfile(lat, lng);
+        showToast("Live location loaded successfully!");
+        
+        if (gpsBtn) {
+          gpsBtn.disabled = false;
+          gpsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg> Use Current Device Location`;
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error:", error);
+        showToast("Unable to retrieve live location. Check browser permissions.");
+        if (gpsBtn) {
+          gpsBtn.disabled = false;
+          gpsBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg> Use Current Device Location`;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  };
+
   // Bind function actions to window scope
   window.flyToBoutique = flyToBoutique;
   window.toggleCheckoutMap = toggleCheckoutMap;
   window.toggleProfileDrawer = toggleProfileDrawer;
   window.toggleProfileMap = toggleProfileMap;
+  window.getCheckoutLiveLocation = getCheckoutLiveLocation;
+  window.getProfileLiveLocation = getProfileLiveLocation;
 
   // Safe delayed initializations
   setTimeout(initBoutiqueMap, 1500);
