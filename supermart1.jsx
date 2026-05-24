@@ -3904,6 +3904,10 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
 
   const handleGoogleSignIn = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    setCustErr("");
+    setCustLoading(true);
+    
+    // Trigger button particle effects immediately
     if (e) {
       try {
         triggerParticles(e, null);
@@ -3911,8 +3915,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         console.error("Particle error:", pErr);
       }
     }
-    setCustErr("");
-    setCustLoading(true);
+
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -3949,14 +3952,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
     } catch (err) {
       console.error("Google login error details:", err);
       if (err.code === "auth/popup-blocked") {
-        setCustErr("Popup blocked! Redirecting you to Google Sign-In instead...");
-        try {
-          await signInWithRedirect(auth, provider);
-          return;
-        } catch (redirErr) {
-          console.error("Redirect login error:", redirErr);
-          setCustErr(`Redirect failed: ${redirErr.message}`);
-        }
+        setCustErr("⚠️ Google login popup was blocked! Look at the top right of your browser's address bar, click the 'Popup Blocked' icon, select 'Always allow popups from this site', and click the Google button again to log in.");
       } else {
         let errMsg = "Google sign-in failed. Please try again.";
         if (err.code === "auth/unauthorized-domain") {
