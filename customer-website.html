@@ -716,6 +716,214 @@ body::after{
   footer{padding:4rem 2rem 2.5rem}
   .footer-grid{grid-template-columns:1fr;gap:2.5rem}
 }
+
+/* ── PREMIUM SEARCH & FILTER SUITE ──────────────────────────────────────── */
+.premium-filter-suite {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 0 auto 3rem auto;
+  max-width: 1200px;
+  background: var(--ink);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: var(--blur);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeUp 0.8s var(--ease-silk) forwards;
+}
+
+@media (min-width: 992px) {
+  .premium-filter-suite {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.2rem 2rem;
+  }
+}
+
+.luxury-search-box {
+  position: relative;
+  flex: 1.5;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 9, 6, 0.45);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 30px;
+  padding: 0 1.2rem;
+  height: 48px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.luxury-search-box:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(201, 168, 76, 0.12);
+}
+
+.search-icon {
+  color: var(--gold-dim);
+  margin-right: 0.8rem;
+  transition: color 0.3s;
+}
+
+.luxury-search-box:focus-within .search-icon {
+  color: var(--gold);
+}
+
+#luxury-search-input {
+  background: transparent;
+  border: none;
+  color: var(--ivory);
+  font-family: var(--f-body);
+  font-size: 0.88rem;
+  width: 100%;
+  outline: none;
+}
+
+#luxury-search-input::placeholder {
+  color: var(--ash);
+  opacity: 0.65;
+}
+
+.clear-search-btn {
+  background: transparent;
+  border: none;
+  color: var(--ash);
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.clear-search-btn:hover {
+  color: var(--gold);
+}
+
+.luxury-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  flex: 2.5;
+}
+
+@media (min-width: 768px) {
+  .luxury-filters {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+}
+
+.luxury-select-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.luxury-select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 15px;
+  top: 52%;
+  transform: translateY(-50%);
+  color: var(--gold);
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+
+#luxury-category-filter, #luxury-sort-filter {
+  appearance: none;
+  background: rgba(10, 9, 6, 0.45);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 24px;
+  padding: 0 2rem 0 1.2rem;
+  height: 44px;
+  width: 100%;
+  color: var(--ivory);
+  font-family: var(--f-label);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#luxury-category-filter:focus, #luxury-sort-filter:focus {
+  border-color: var(--gold);
+}
+
+#luxury-category-filter option, #luxury-sort-filter option {
+  background: var(--obsidian);
+  color: var(--ivory);
+}
+
+.luxury-price-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1.2;
+  min-width: 160px;
+}
+
+.price-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--f-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.price-val {
+  color: var(--gold-light);
+}
+
+#luxury-price-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--stone);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  width: 100%;
+}
+
+#luxury-price-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--obsidian);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+#luxury-price-range::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  background: var(--gold-light);
+}
+
+#luxury-price-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--obsidian);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+#luxury-price-range::-moz-range-thumb:hover {
+  transform: scale(1.25);
+  background: var(--gold-light);
+}
 </style>
 </head>
 <body>
@@ -819,7 +1027,50 @@ body::after{
     </p>
   </div>
 
-  <!-- Filter bar: shown when a category is selected -->
+  <!-- Premium Search & Filter Suite -->
+  <div class="premium-filter-suite">
+    <!-- Search Box -->
+    <div class="luxury-search-box">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="luxury-search-input" placeholder="Search our gourmet reserves..." oninput="handleSearchFilter()">
+      <button class="clear-search-btn" id="clear-search-btn" onclick="clearSearchInput()" style="display: none;" title="Clear Search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="luxury-filters">
+      <!-- Category Selector -->
+      <div class="luxury-select-wrapper">
+        <select id="luxury-category-filter" onchange="handleSearchFilter()">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+
+      <!-- Price Range Selector -->
+      <div class="luxury-price-filter">
+        <div class="price-labels">
+          <span>Max Price:</span>
+          <span class="price-val" id="max-price-val">₹10,000</span>
+        </div>
+        <input type="range" id="luxury-price-range" min="0" max="10000" step="50" value="10000" oninput="updatePriceLabel(this.value); handleSearchFilter();">
+      </div>
+      
+      <!-- Sort Selector -->
+      <div class="luxury-select-wrapper">
+        <select id="luxury-sort-filter" onchange="handleSearchFilter()">
+          <option value="relevance">Default Sort</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter bar: shown when a category or search is active -->
   <div id="cat-filter-bar">
     <button id="cat-back-btn" onclick="showAllCategories()">&#8592; All Categories</button>
     <span id="cat-filter-title">Category</span>
@@ -1771,6 +2022,158 @@ window.addEventListener('scroll', () => {
     return `<svg width="15" height="15" viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   }
 
+  // Populate dynamic category dropdown
+  function populateCategoryFilter() {
+    const catSelect = document.getElementById("luxury-category-filter");
+    if (catSelect) {
+      const currentSelected = catSelect.value;
+      catSelect.innerHTML = `<option value="">All Categories</option>`;
+      const uniqueCats = [...new Set(allProducts.map(p => p.cat))].sort();
+      uniqueCats.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        catSelect.appendChild(option);
+      });
+      catSelect.value = currentSelected;
+    }
+  }
+
+  // Populate dynamic max price slider range based on actual loaded products
+  function updatePriceRangeSlider() {
+    const priceSlider = document.getElementById("luxury-price-range");
+    const maxPriceVal = document.getElementById("max-price-val");
+    if (priceSlider && allProducts.length > 0) {
+      const maxPrice = Math.max(...allProducts.map(p => Number(p.price) || 0));
+      const roundedMax = Math.ceil(maxPrice / 100) * 100;
+      priceSlider.max = roundedMax;
+      
+      const currentVal = Number(priceSlider.value);
+      const isDefault = priceSlider.getAttribute("data-default-applied") !== "true";
+      
+      if (isDefault || currentVal > roundedMax) {
+        priceSlider.value = roundedMax;
+        priceSlider.setAttribute("data-default-applied", "true");
+        if (maxPriceVal) {
+          maxPriceVal.textContent = `₹${roundedMax.toLocaleString("en-IN")}`;
+        }
+      }
+    }
+  }
+
+  // Check if filtering is active
+  function checkFilteringActive() {
+    const query = document.getElementById("luxury-search-input")?.value.trim().toLowerCase() || "";
+    const category = document.getElementById("luxury-category-filter")?.value || "";
+    const sortBy = document.getElementById("luxury-sort-filter")?.value || "relevance";
+    
+    const priceSlider = document.getElementById("luxury-price-range");
+    let isPriceFiltered = false;
+    if (priceSlider) {
+      const currentPrice = Number(priceSlider.value);
+      const maxPrice = Number(priceSlider.max) || 10000;
+      isPriceFiltered = currentPrice < maxPrice;
+    }
+    
+    return query !== "" || category !== "" || isPriceFiltered || sortBy !== "relevance";
+  }
+
+  // Main search and filter routing function
+  function handleSearchFilter() {
+    const query = document.getElementById("luxury-search-input")?.value.trim().toLowerCase() || "";
+    const category = document.getElementById("luxury-category-filter")?.value || "";
+    const maxPrice = Number(document.getElementById("luxury-price-range")?.value || 10000);
+    const sortBy = document.getElementById("luxury-sort-filter")?.value || "relevance";
+    const clearBtn = document.getElementById("clear-search-btn");
+
+    // Toggle clear search button
+    if (clearBtn) {
+      clearBtn.style.display = query ? "flex" : "none";
+    }
+
+    const isFilteringActive = checkFilteringActive();
+
+    if (!isFilteringActive) {
+      // Revert to default Category browse view
+      window.showAllCategories();
+      return;
+    }
+
+    // Filter products in memory
+    let filtered = allProducts.filter(p => {
+      const matchQuery = !query || p.name.toLowerCase().includes(query) || p.cat.toLowerCase().includes(query);
+      const matchCat = !category || p.cat === category;
+      const matchPrice = (Number(p.price) || 0) <= maxPrice;
+      return matchQuery && matchCat && matchPrice;
+    });
+
+    // Sort products
+    if (sortBy === "price-asc") {
+      filtered.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+    } else if (sortBy === "price-desc") {
+      filtered.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+    } else if (sortBy === "name-asc") {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Render results
+    prodGrid.innerHTML = "";
+    if (filtered.length === 0) {
+      prodGrid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--ash); font-family: var(--f-body);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.8rem; color: var(--gold-dim);">✦</div>
+          <h3 style="font-family: var(--f-display); font-weight: 300; font-size: 1.5rem; color: var(--ivory); margin-bottom: 0.5rem;">No matches found</h3>
+          <p style="font-size: 0.82rem; max-width: 420px; margin: 0 auto; line-height: 1.6; color: var(--ash);">
+            Try adjusting your search query, price slider, or select a different category to discover products.
+          </p>
+        </div>
+      `;
+    } else {
+      filtered.forEach((p, i) => {
+        const imgSrc = p.img || getFallbackImage(p.cat, i);
+        const card = document.createElement("div");
+        card.className = "prod-list-card";
+        card.style.animationDelay = `${i * 0.04}s`;
+        const safeId   = (p.id || "").replace(/['"]/g, "");
+        const safeName = (p.name || "").replace(/['"]/g, "&apos;");
+        const safeImg  = (imgSrc || "").replace(/['"]/g, "");
+        const safePrice = Number(p.price) || 0;
+        card.innerHTML = `
+          <img class="prod-list-img" src="${imgSrc}" alt="${p.name}" loading="lazy"
+            onerror="this.src='${getFallbackImage(p.cat, i)}'">
+          <div class="prod-list-info">
+            <div class="prod-list-cat">${p.cat}</div>
+            <div class="prod-list-name">${p.name}</div>
+            <div class="prod-list-price">₹ ${safePrice.toLocaleString("en-IN")}</div>
+          </div>
+          <button class="prod-list-add" aria-label="Add to cart"
+            onclick="event.stopPropagation();addToCart('${safeId}','${safeName}',${safePrice},'${safeImg}')">
+            ${makePlusIcon()}
+          </button>
+        `;
+        prodGrid.appendChild(card);
+      });
+    }
+
+    // Toggle grids
+    catGrid.style.display = "none";
+    prodGrid.style.display = "grid";
+    filterBar.classList.add("visible");
+
+    // Dynamic Filter Title description
+    if (query && category) {
+      filterTitle.innerHTML = `Search: "${query}" in <em>${category}</em>`;
+    } else if (query) {
+      filterTitle.innerHTML = `Search: "${query}"`;
+    } else if (category) {
+      filterTitle.innerHTML = category;
+    } else {
+      filterTitle.innerHTML = `Filtered Selection`;
+    }
+
+    countBadge.textContent = `${filtered.length} Product${filtered.length !== 1 ? "s" : ""}`;
+  }
+
   // Render one card per category (default view)
   function renderCategories(products) {
     // Group by category, take first product as thumbnail
@@ -1806,52 +2209,60 @@ window.addEventListener('scroll', () => {
     filterBar.classList.remove("visible");
   }
 
-  // Render all products for a clicked category
+  // Category card click transitions into filters
   function showCategory(catName) {
-    const filtered = allProducts.filter(p => p.cat === catName);
-
-    prodGrid.innerHTML = "";
-    filtered.forEach((p, i) => {
-      const imgSrc = p.img || getFallbackImage(p.cat, i);
-      const card = document.createElement("div");
-      card.className = "prod-list-card";
-      card.style.animationDelay = `${i * 0.04}s`;
-      const safeId   = (p.id || "").replace(/['"]/g, "");
-      const safeName = (p.name || "").replace(/['"]/g, "&apos;");
-      const safeImg  = (imgSrc || "").replace(/['"]/g, "");
-      const safePrice = Number(p.price) || 0;
-      card.innerHTML = `
-        <img class="prod-list-img" src="${imgSrc}" alt="${p.name}" loading="lazy"
-          onerror="this.src='${getFallbackImage(p.cat, i)}'">
-        <div class="prod-list-info">
-          <div class="prod-list-cat">${p.cat}</div>
-          <div class="prod-list-name">${p.name}</div>
-          <div class="prod-list-price">₹ ${safePrice.toLocaleString("en-IN")}</div>
-        </div>
-        <button class="prod-list-add" aria-label="Add to cart"
-          onclick="event.stopPropagation();addToCart('${safeId}','${safeName}',${safePrice},'${safeImg}')">
-          ${makePlusIcon()}
-        </button>
-      `;
-      prodGrid.appendChild(card);
-    });
-
-    catGrid.style.display = "none";
-    prodGrid.style.display = "grid";
-    filterBar.classList.add("visible");
-    filterTitle.textContent = catName;
-    countBadge.textContent = `${filtered.length} Product${filtered.length !== 1 ? "s" : ""}`;
-
+    const catSelect = document.getElementById("luxury-category-filter");
+    if (catSelect) {
+      catSelect.value = catName;
+    }
+    handleSearchFilter();
+    
     // Smooth scroll to showcase section
     document.getElementById("showcase").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // Go back to category view
+  // Go back to category view and reset all filters
   window.showAllCategories = () => {
+    const searchInput = document.getElementById("luxury-search-input");
+    if (searchInput) searchInput.value = "";
+    
+    const catSelect = document.getElementById("luxury-category-filter");
+    if (catSelect) catSelect.value = "";
+    
+    const priceSlider = document.getElementById("luxury-price-range");
+    if (priceSlider) {
+      priceSlider.value = priceSlider.max;
+      updatePriceLabel(priceSlider.max);
+    }
+    
+    const sortSelect = document.getElementById("luxury-sort-filter");
+    if (sortSelect) sortSelect.value = "relevance";
+    
+    const clearBtn = document.getElementById("clear-search-btn");
+    if (clearBtn) clearBtn.style.display = "none";
+
     prodGrid.style.display = "none";
     catGrid.style.display = "grid";
     filterBar.classList.remove("visible");
   };
+
+  // Clear search input specifically
+  window.clearSearchInput = () => {
+    const searchInput = document.getElementById("luxury-search-input");
+    if (searchInput) searchInput.value = "";
+    handleSearchFilter();
+  };
+
+  // Price range slider label updates
+  window.updatePriceLabel = (val) => {
+    const label = document.getElementById("max-price-val");
+    if (label) {
+      label.textContent = `₹${Number(val).toLocaleString("en-IN")}`;
+    }
+  };
+
+  // Expose filter handler to global scope
+  window.handleSearchFilter = handleSearchFilter;
 
   // Load all products from Firestore once
   onSnapshot(collection(db, "products"), snap => {
@@ -1860,7 +2271,15 @@ window.addEventListener('scroll', () => {
       .filter(p => p.status !== "inactive");
 
     if (allProducts.length > 0) {
-      renderCategories(allProducts);
+      populateCategoryFilter();
+      updatePriceRangeSlider();
+      
+      const isFilteringActive = checkFilteringActive();
+      if (isFilteringActive) {
+        handleSearchFilter();
+      } else {
+        renderCategories(allProducts);
+      }
     } else {
       skeletonEl.style.display = "none";
       catGrid.innerHTML = `<p style="color:var(--ash);font-family:var(--f-body);padding:2rem 0">
