@@ -166,7 +166,7 @@ export default function LandingPage({ onGetStarted }) {
       const t = document.createElement("div");
       t.className = "trail-dot";
       const s = 8 - i;
-      t.style.cssText = `width:${s}px;height:${s}px;background:rgba(0,212,170,${
+      t.style.cssText = `width:${s}px;height:${s}px;background:rgba(201,168,76,${
         0.6 - i * 0.07
       });`;
       document.body.appendChild(t);
@@ -385,9 +385,9 @@ export default function LandingPage({ onGetStarted }) {
       window.addEventListener("resize", resize);
 
       const COLORS = [
-        "rgba(108,99,255,",
-        "rgba(0,212,170,",
-        "rgba(255,77,109,",
+        "rgba(201,168,76,",
+        "rgba(232,201,122,",
+        "rgba(122,97,48,",
         "rgba(255,181,71,",
       ];
       function rand(a, b) {
@@ -431,7 +431,7 @@ export default function LandingPage({ onGetStarted }) {
           x: 0.15,
           y: 0.25,
           r: 300,
-          col: "rgba(108,99,255,",
+          col: "rgba(201,168,76,",
           base: 0.06,
           dx: 0.0003,
           dy: 0.0002,
@@ -440,7 +440,7 @@ export default function LandingPage({ onGetStarted }) {
           x: 0.85,
           y: 0.7,
           r: 250,
-          col: "rgba(0,212,170,",
+          col: "rgba(232,201,122,",
           base: 0.05,
           dx: -0.0002,
           dy: 0.0003,
@@ -449,7 +449,7 @@ export default function LandingPage({ onGetStarted }) {
           x: 0.5,
           y: 0.5,
           r: 180,
-          col: "rgba(108,99,255,",
+          col: "rgba(201,168,76,",
           base: 0.03,
           dx: 0.0004,
           dy: -0.0002,
@@ -490,7 +490,7 @@ export default function LandingPage({ onGetStarted }) {
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(108,99,255,${(1 - dist / 90) * 0.08})`;
+              ctx.strokeStyle = `rgba(201,168,76,${(1 - dist / 90) * 0.08})`;
               ctx.lineWidth = 0.5;
               ctx.stroke();
             }
@@ -618,7 +618,7 @@ export default function LandingPage({ onGetStarted }) {
         rect.top + rect.height / 2
       }px;
         font-size:${0.6 + Math.random() * 0.8}rem;color:${
-        Math.random() > 0.5 ? "#6C63FF" : "#00D4AA"
+        Math.random() > 0.5 ? "#C9A84C" : "#E8C97A"
       };
         pointer-events:none;z-index:9999;
         animation:particleFly .8s ease-out forwards;
@@ -634,7 +634,7 @@ export default function LandingPage({ onGetStarted }) {
   };
 
   return (
-    <div id="landing-page-root" style={{ background: "#07070F", color: "#F0F0F5", position: "relative", minHeight: "100vh" }}>
+    <div id="landing-page-root" style={{ background: "#0A0906", color: "#F7F3EC", position: "relative", minHeight: "100vh" }}>
       {/* Dynamic Font and Style injection for Landing Page */}
       <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
@@ -644,9 +644,9 @@ export default function LandingPage({ onGetStarted }) {
         __html: `
           #landing-page-root *, #landing-page-root *::before, #landing-page-root *::after { box-sizing: border-box; }
           #landing-page-root {
-            --bg: #07070F; --surf: #0F0F1A; --surf-alt: #18181F; --border: #2A2A35;
-            --accent: #6C63FF; --alt: #00D4AA; --danger: #FF4D6D; --warn: #FFB547;
-            --text: #F0F0F5; --muted: #6B6B80;
+            --bg: #0A0906; --surf: #1A1610; --surf-alt: #3A342A; --border: rgba(201,168,76,0.18);
+            --accent: #C9A84C; --alt: #E8C97A; --danger: #FF4D6D; --warn: #FFB547;
+            --text: #F7F3EC; --muted: #8C8070;
             --mono: 'JetBrains Mono', monospace;
             --r: 1rem;
             scroll-behavior: smooth;
