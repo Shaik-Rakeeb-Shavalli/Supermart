@@ -24,7 +24,7 @@ const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 // ─── FIREBASE HELPERS ─────────────────────────────────────────────────────────
 import { fbGet, fbInsert, fbUpdate, fbDelete, auth } from "./firebase.js";
-import { GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 // Aliases so all existing code continues to work unchanged
 const sbGet    = (table, _q) => fbGet(table);
@@ -3609,6 +3609,58 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
   const [custLoading, setCustLoading] = useState(false);
 
   useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          setCustLoading(true);
+          const user = result.user;
+          const cleanUserPhone = (user.phoneNumber || "").replace(/[^0-9]/g, "");
+          const userEmail = (user.email || "").toLowerCase();
+
+          // Search for registered customer match
+          const match = customers.find(c => {
+            const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
+            return (cleanUserPhone && (cleanDb === cleanUserPhone || cleanDb.endsWith(cleanUserPhone) || cleanUserPhone.endsWith(cleanDb))) ||
+                   (c.email && c.email.toLowerCase() === userEmail);
+          });
+
+          if (match) {
+            onCustomerLogin(match);
+          } else {
+            // Automatically register new loyalty member
+            const newCust = {
+              name: user.displayName || "Google Client",
+              phone: user.phoneNumber || "Google Verified",
+              email: user.email || "",
+              visits: 1,
+              spend: "0.00",
+              tier: "Silver",
+              tag: "Regular",
+              status: "active",
+              lastVisit: new Date().toLocaleDateString("en-IN"),
+            };
+            const insertRes = await sbInsert("customers", newCust);
+            onCustomerLogin(insertRes[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Redirect sign-in error:", err);
+        let errMsg = "Redirect sign-in failed. Please try again.";
+        if (err.code === "auth/unauthorized-domain") {
+          errMsg = `This testing domain (${window.location.hostname || "localhost"}) is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+        } else if (err.code) {
+          errMsg = `Redirect Auth Error: ${err.message} (${err.code})`;
+        }
+        setCustErr(errMsg);
+      } finally {
+        setCustLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, [customers]);
+
+  useEffect(() => {
     // Custom cursor and trail logic
     const cursor = cursorRef.current;
     const trailCount = 8;
@@ -3850,7 +3902,15 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
   const [otpCode, setOtpCode] = useState("");
   const [confirmResult, setConfirmResult] = useState(null);
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e) {
+      try {
+        triggerParticles(e, null);
+      } catch (pErr) {
+        console.error("Particle error:", pErr);
+      }
+    }
     setCustErr("");
     setCustLoading(true);
     const provider = new GoogleAuthProvider();
@@ -3888,21 +3948,30 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       }
     } catch (err) {
       console.error("Google login error details:", err);
-      let errMsg = "Google sign-in failed. Please try again.";
       if (err.code === "auth/popup-blocked") {
-        errMsg = "Popup blocked! Please allow popups/redirects for this site in your browser settings and try again.";
-      } else if (err.code === "auth/unauthorized-domain") {
-        errMsg = `This testing domain (${window.location.hostname || "localhost"}) is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
-      } else if (err.code === "auth/operation-not-allowed") {
-        errMsg = "Google Sign-In is not enabled. Please enable it in your Firebase Console -> Authentication -> Sign-in method.";
-      } else if (err.code === "auth/popup-closed-by-user") {
-        errMsg = "Sign-in popup was closed before completing auth.";
-      } else if (err.code) {
-        errMsg = `Google Auth Error: ${err.message} (${err.code})`;
-      } else if (err.message) {
-        errMsg = `Google Auth Error: ${err.message}`;
+        setCustErr("Popup blocked! Redirecting you to Google Sign-In instead...");
+        try {
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch (redirErr) {
+          console.error("Redirect login error:", redirErr);
+          setCustErr(`Redirect failed: ${redirErr.message}`);
+        }
+      } else {
+        let errMsg = "Google sign-in failed. Please try again.";
+        if (err.code === "auth/unauthorized-domain") {
+          errMsg = `This testing domain (${window.location.hostname || "localhost"}) is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+        } else if (err.code === "auth/operation-not-allowed") {
+          errMsg = "Google Sign-In is not enabled. Please enable it in your Firebase Console -> Authentication -> Sign-in method.";
+        } else if (err.code === "auth/popup-closed-by-user") {
+          errMsg = "Sign-in popup was closed before completing auth.";
+        } else if (err.code) {
+          errMsg = `Google Auth Error: ${err.message} (${err.code})`;
+        } else if (err.message) {
+          errMsg = `Google Auth Error: ${err.message}`;
+        }
+        setCustErr(errMsg);
       }
-      setCustErr(errMsg);
     } finally {
       setCustLoading(false);
     }
@@ -4498,7 +4567,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {/* GOOGLE SIGN IN BUTTON */}
                 <button 
-                  onClick={(e) => triggerParticles(e, handleGoogleSignIn, true)} 
+                  onClick={handleGoogleSignIn} 
                   disabled={custLoading} 
                   className="cust-google-btn"
                 >
