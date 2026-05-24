@@ -1759,9 +1759,10 @@ window.addEventListener('scroll', () => {
     if (nameInput) nameInput.value = activeCust.name || "";
     if (phoneInput) phoneInput.value = activeCust.phone || "";
     
-    // Show VIP greeting marquee
+    // Show greeting marquee with correct member tier
     if (vipMarquee) {
-      vipMarquee.textContent = `Welcome back, VIP Client: ${activeCust.name} · Loyalty Balance: ₹${(activeCust.spend || 0).toLocaleString()} · Current Points: ${activeCust.points || 0} · Concierge Viewing Active ✦`;
+      const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
+      vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Loyalty Balance: ₹${(activeCust.spend || 0).toLocaleString()} · Current Points: ${activeCust.points || 0} · Concierge Viewing Active ✦`;
       vipMarquee.style.display = "block";
     }
     
@@ -1882,9 +1883,10 @@ window.addEventListener('scroll', () => {
         if (nameInput) nameInput.value = activeCust.name;
         if (phoneInput) phoneInput.value = activeCust.phone;
         
-        // Update VIP marquee
+        // Update marquee with correct member tier
         if (vipMarquee) {
-          vipMarquee.textContent = `Welcome back, VIP Client: ${activeCust.name} · Account Verified via Google ✦`;
+          const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
+          vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Account Verified via Google ✦`;
           vipMarquee.style.display = "block";
         }
       } catch (err) {
@@ -1981,9 +1983,10 @@ window.addEventListener('scroll', () => {
         if (nameInput) nameInput.value = activeCust.name;
         if (phoneInput) phoneInput.value = activeCust.phone;
         
-        // Update VIP marquee
+        // Update marquee with correct member tier
         if (vipMarquee) {
-          vipMarquee.textContent = `Welcome back, VIP Client: ${activeCust.name} · Phone: ${activeCust.phone} ✦`;
+          const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
+          vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Phone: ${activeCust.phone} ✦`;
           vipMarquee.style.display = "block";
         }
       } catch (err) {
@@ -2008,7 +2011,11 @@ window.addEventListener('scroll', () => {
       if (phoneInput && !phoneInput.value) phoneInput.value = contact;
       
       if (vipMarquee && vipMarquee.style.display !== "block") {
-        vipMarquee.textContent = `Welcome back, VIP Client: ${name} · Access Verified ✦`;
+        // Only show generic marquee if no session customer is set (session customer has correct tag)
+        const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+        const memberLabel = sessionCust ? (sessionCust.tag === "VIP" ? "VIP Client" : (sessionCust.tag || "Member")) : "Member";
+        const displayName = sessionCust ? sessionCust.name : name;
+        vipMarquee.textContent = `Welcome back, ${memberLabel}: ${displayName} · Access Verified ✦`;
         vipMarquee.style.display = "block";
       }
       
