@@ -1144,6 +1144,59 @@ body::after{
   pointer-events: none;
   text-transform: uppercase;
 }
+/* ── PROFILE PANEL DRAWER ────────────────────────────────────────────────── */
+#profile-panel {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  background: var(--obsidian);
+  border-left: 1px solid var(--glass-border);
+  z-index: 2000;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
+  transition: right 0.6s var(--ease-silk);
+  display: flex;
+  flex-direction: column;
+}
+
+#profile-panel.active {
+  right: 0;
+}
+
+.profile-tier-card {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(26,22,16,0.45) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.tier-icon {
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 0.2rem;
+  line-height: 1;
+}
+
+.tier-label {
+  font-family: var(--f-label);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-light);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.tier-sub {
+  font-family: var(--f-body);
+  font-size: 0.72rem;
+  color: var(--ash);
+  margin-bottom: 0.1rem;
+}
 </style>
 </head>
 <body>
@@ -1169,6 +1222,10 @@ body::after{
     <li><a href="/index.html" style="color: var(--gold); font-weight: 500;">Portal Home</a></li>
     <li><a href="#" id="vip-logout-btn" style="color: #ff4d6d; font-weight: 500; display: none; text-shadow: 0 0 8px rgba(255,77,109,0.3)">Logout</a></li>
   </ul>
+  <button class="nav-cta" id="profile-nav-btn" style="display: none; background: rgba(201,168,76,0.15); border: 1px solid var(--glass-border); color: var(--gold); margin-right: 0.6rem;" onclick="toggleProfileDrawer()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    Profile
+  </button>
   <button class="nav-cta" id="auth-nav-btn">Log In</button>
 </nav>
 
@@ -2151,6 +2208,65 @@ window.addEventListener('scroll', () => {
     <button class="checkout-btn" id="checkout-submit-btn" disabled>Place Superstore Order</button>
   </div>
 </div>
+
+<!-- PROFILE PANEL DRAWER -->
+<div id="profile-panel">
+  <div class="panel-header">
+    <h3 class="panel-title">My Profile</h3>
+    <button class="panel-close" id="profile-close-btn">&times;</button>
+  </div>
+  
+  <div class="panel-items" style="padding: 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- Tier / Status Card -->
+    <div class="profile-tier-card">
+      <div class="tier-icon" id="profile-tier-icon">✦</div>
+      <div class="tier-label" id="profile-tier-label">Regular Member</div>
+      <div class="tier-sub" id="profile-stats-spend">Lifetime Spend: ₹0</div>
+      <div class="tier-sub" id="profile-stats-points">Loyalty Points: 0</div>
+      <div style="font-size: 0.65rem; color: var(--gold); margin-top: 0.5rem; font-family: var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;" id="profile-vip-badge">Tier Status: Regular</div>
+    </div>
+    
+    <!-- Profile Form -->
+    <div class="checkout-form" style="margin-bottom: 0;">
+      <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+        <label style="font-family: var(--f-label); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold-light); text-transform: uppercase;">Full Name</label>
+        <input class="checkout-input" type="text" id="profile-name-input" placeholder="Your Name" required>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+        <label style="font-family: var(--f-label); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold-light); text-transform: uppercase;">Phone Number</label>
+        <input class="checkout-input" type="tel" id="profile-phone-input" placeholder="Phone Number" required>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+        <label style="font-family: var(--f-label); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold-light); text-transform: uppercase;">Email Address</label>
+        <input class="checkout-input" type="email" id="profile-email-input" placeholder="Email Address">
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+        <label style="font-family: var(--f-label); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold-light); text-transform: uppercase;">Delivery Address</label>
+        <textarea class="checkout-input" id="profile-address-input" placeholder="Delivery Address" required rows="2" style="resize:none; padding:10px 14px; height:auto; font-family:var(--f-body); font-size:0.82rem; line-height:1.4;"></textarea>
+      </div>
+      
+      <!-- Map Toggle Action -->
+      <button type="button" class="map-toggle-btn" id="profile-map-toggle-btn" onclick="toggleProfileMap()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Select Location on Interactive Map
+      </button>
+
+      <!-- Expandable Map Panel -->
+      <div id="profile-map-panel" style="display: none; height: 180px; border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border); margin-top: 0.5rem; position: relative;">
+        <div id="profile-map" style="width: 100%; height: 100%;"></div>
+        <div class="map-helper-badge">Click or drag pin to set address</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="panel-footer" style="border-top: 1px solid var(--glass-border); padding: 1.5rem;">
+    <button class="checkout-btn" id="profile-save-btn">Update Profile Details</button>
+  </div>
+</div>
+
 <!-- AUTHENTICATION MODAL -->
 <div class="auth-modal-overlay" id="auth-modal">
   <div class="auth-modal-content">
@@ -2196,7 +2312,7 @@ window.addEventListener('scroll', () => {
 <!-- Firebase Real-Time Synchronization Module -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, getDoc, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { 
     getAuth, 
     signInWithPopup, 
@@ -2609,14 +2725,18 @@ window.addEventListener('scroll', () => {
   const phoneInput = document.getElementById("checkout-phone");
   const vipMarquee = document.getElementById("vip-marquee");
   const vipLogoutBtn = document.getElementById("vip-logout-btn");
+  const profileNavBtn = document.getElementById("profile-nav-btn");
+  const checkoutAddress = document.getElementById("checkout-address");
 
   if (activeCust) {
     if (nameInput) nameInput.value = activeCust.name || "";
     if (phoneInput) phoneInput.value = activeCust.phone || "";
+    if (checkoutAddress) checkoutAddress.value = activeCust.address || "";
+    if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
     
     // Show greeting marquee with correct member tier
     if (vipMarquee) {
-      const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
+      const memberLabel = activeCust.tag === "VIP" || activeCust.tag === "Loyalty VIP" || activeCust.tag === "VIP Request" ? "VIP Client" : (activeCust.tag || "Member");
       vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Loyalty Balance: ₹${(activeCust.spend || 0).toLocaleString()} · Current Points: ${activeCust.points || 0} · Loyalty Account Active ✦`;
       vipMarquee.style.display = "block";
     }
@@ -2627,8 +2747,42 @@ window.addEventListener('scroll', () => {
       vipLogoutBtn.addEventListener("click", (e) => {
         e.preventDefault();
         sessionStorage.removeItem("supermart_active_customer");
+        signOut(auth).catch(() => {});
         window.location.reload();
       });
+    }
+
+    // Dynamic background check to load latest points and spend from Firestore
+    if (activeCust.id) {
+      getDoc(doc(db, "customers", activeCust.id)).then((docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const updatedCust = {
+            ...activeCust,
+            name: data.name || activeCust.name,
+            phone: data.phone || activeCust.phone,
+            email: data.email || activeCust.email || "",
+            address: data.address || activeCust.address || "",
+            spend: Number(data.spend) || 0,
+            points: Number(data.points) || 0,
+            visits: Number(data.visits) || 0,
+            tag: data.tag || activeCust.tag || "Regular",
+            coords: data.coords || activeCust.coords || null
+          };
+          
+          // Only update and refresh if stats actually changed
+          if (updatedCust.spend !== activeCust.spend || updatedCust.points !== activeCust.points || updatedCust.tag !== activeCust.tag || updatedCust.name !== activeCust.name || updatedCust.phone !== activeCust.phone || updatedCust.address !== activeCust.address) {
+            sessionStorage.setItem("supermart_active_customer", JSON.stringify(updatedCust));
+            if (nameInput) nameInput.value = updatedCust.name;
+            if (phoneInput) phoneInput.value = updatedCust.phone;
+            if (checkoutAddress) checkoutAddress.value = updatedCust.address;
+            if (vipMarquee) {
+              const memberLabel = updatedCust.tag === "VIP" || updatedCust.tag === "Loyalty VIP" || updatedCust.tag === "VIP Request" ? "VIP Client" : (updatedCust.tag || "Member");
+              vipMarquee.textContent = `Welcome back, ${memberLabel}: ${updatedCust.name} · Loyalty Balance: ₹${(updatedCust.spend || 0).toLocaleString()} · Current Points: ${updatedCust.points || 0} · Loyalty Account Active ✦`;
+            }
+          }
+        }
+      }).catch((e) => console.warn("Failed to update customer session details in background:", e));
     }
   }
 
@@ -2710,6 +2864,103 @@ window.addEventListener('scroll', () => {
     authBackBtn.addEventListener("click", resetPhoneAuthFlow);
   }
 
+  // ── FIREBASE CUSTOMER PORTAL DYNAMIC SYNCING ──
+  async function syncCustomerSession(firebaseUser, method) {
+    try {
+      const phone = firebaseUser.phoneNumber || "";
+      const email = firebaseUser.email || "";
+      const name = firebaseUser.displayName || (method === "phone" ? "SuperMart Client" : "Google Shopper");
+      
+      let matchedCust = null;
+      let matchedId = null;
+      
+      // Query firestore for existing customer record
+      if (phone) {
+        const qPhone = query(collection(db, "customers"), where("phone", "==", phone), limit(1));
+        const snap = await getDocs(qPhone);
+        if (!snap.empty) {
+          matchedCust = snap.docs[0].data();
+          matchedId = snap.docs[0].id;
+        }
+      }
+      
+      if (!matchedId && email) {
+        const qEmail = query(collection(db, "customers"), where("email", "==", email), limit(1));
+        const snap = await getDocs(qEmail);
+        if (!snap.empty) {
+          matchedCust = snap.docs[0].data();
+          matchedId = snap.docs[0].id;
+        }
+      }
+      
+      let activeCust = null;
+      
+      if (matchedId) {
+        activeCust = {
+          id: matchedId,
+          name: matchedCust.name || name,
+          phone: matchedCust.phone || phone || email || "Google Verified",
+          email: matchedCust.email || email || "",
+          address: matchedCust.address || "",
+          spend: Number(matchedCust.spend) || 0,
+          points: Number(matchedCust.points) || 100,
+          visits: (Number(matchedCust.visits) || 0) + 1,
+          tag: matchedCust.tag || "Regular",
+          coords: matchedCust.coords || null
+        };
+        
+        await updateDoc(doc(db, "customers", matchedId), {
+          visits: activeCust.visits
+        });
+      } else {
+        const newCustData = {
+          name: name,
+          phone: phone || email || "Google Verified",
+          email: email,
+          address: "",
+          spend: 0,
+          points: 100, // 100 welcome points
+          visits: 1,
+          tag: "Regular", // new users start as Regular
+          createdAt: new Date(),
+          coords: null
+        };
+        
+        const docRef = await addDoc(collection(db, "customers"), newCustData);
+        activeCust = {
+          id: docRef.id,
+          ...newCustData
+        };
+      }
+      
+      sessionStorage.setItem("supermart_active_customer", JSON.stringify(activeCust));
+      
+      showToast(`Welcome to SuperMart, ${activeCust.name}!`);
+      
+      if (nameInput) nameInput.value = activeCust.name;
+      if (phoneInput) phoneInput.value = activeCust.phone;
+      if (checkoutAddress) checkoutAddress.value = activeCust.address || "";
+      if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
+      
+      if (vipMarquee) {
+        const memberLabel = activeCust.tag === "VIP" || activeCust.tag === "Loyalty VIP" || activeCust.tag === "VIP Request" ? "VIP Client" : (activeCust.tag || "Member");
+        vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Loyalty Balance: ₹${(activeCust.spend || 0).toLocaleString()} · Current Points: ${activeCust.points || 0} ✦`;
+        vipMarquee.style.display = "block";
+      }
+      
+      if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
+      
+      // Close the modal
+      if (authModal) authModal.classList.remove("active");
+      
+      // Reload page to refresh UI cleanly
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      console.error("Error in syncCustomerSession:", err);
+      showToast("Authentication succeeded, but failed to synchronize customer profile data.");
+    }
+  }
+
   // Google Provider Sign-in
   if (authGoogleBtn) {
     authGoogleBtn.addEventListener("click", async () => {
@@ -2720,30 +2971,8 @@ window.addEventListener('scroll', () => {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         
-        // Sync with Session Storage so it matches regular Loyalty VIP features
-        const activeCust = {
-          name: user.displayName || "Google Shopper",
-          phone: user.phoneNumber || user.email || "Google Verified",
-          spend: 15500,
-          points: 1550,
-          tier: "Platinum",
-          tag: "Loyalty VIP"
-        };
-        sessionStorage.setItem("supermart_active_customer", JSON.stringify(activeCust));
-        
-        authModal.classList.remove("active");
-        showToast(`Welcome back, ${activeCust.name}!`);
-        
-        // Update inputs
-        if (nameInput) nameInput.value = activeCust.name;
-        if (phoneInput) phoneInput.value = activeCust.phone;
-        
-        // Update marquee with correct member tier
-        if (vipMarquee) {
-          const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
-          vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Account Verified via Google ✦`;
-          vipMarquee.style.display = "block";
-        }
+        // Sync using firestore
+        await syncCustomerSession(user, "google");
       } catch (err) {
         console.error("Google Sign-In Error:", err);
         showToast("Google Authentication failed.");
@@ -2821,29 +3050,8 @@ window.addEventListener('scroll', () => {
         const result = await confirmationResult.confirm(code);
         const user = result.user;
         
-        const activeCust = {
-          name: "SuperMart VIP Client",
-          phone: user.phoneNumber,
-          spend: 95000,
-          points: 950,
-          tier: "Gold",
-          tag: "Loyal Client"
-        };
-        sessionStorage.setItem("supermart_active_customer", JSON.stringify(activeCust));
-        
-        authModal.classList.remove("active");
-        showToast("Access verified! Welcome.");
-        
-        // Update inputs
-        if (nameInput) nameInput.value = activeCust.name;
-        if (phoneInput) phoneInput.value = activeCust.phone;
-        
-        // Update marquee with correct member tier
-        if (vipMarquee) {
-          const memberLabel = activeCust.tag === "VIP" ? "VIP Client" : (activeCust.tag || "Member");
-          vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Phone: ${activeCust.phone} ✦`;
-          vipMarquee.style.display = "block";
-        }
+        // Sync using firestore
+        await syncCustomerSession(user, "phone");
       } catch (err) {
         console.error("OTP verification error:", err);
         showToast("Invalid code. Please try again.");
@@ -2855,9 +3063,8 @@ window.addEventListener('scroll', () => {
   }
 
   // Auth State Listener to sync UI elements
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // User is signed in via Firebase Auth
       if (authNavBtn) authNavBtn.textContent = "Sign Out";
       const name = user.displayName || "SuperMart VIP Client";
       const contact = user.phoneNumber || user.email || "Verified";
@@ -2865,23 +3072,28 @@ window.addEventListener('scroll', () => {
       if (nameInput && !nameInput.value) nameInput.value = name;
       if (phoneInput && !phoneInput.value) phoneInput.value = contact;
       
-      if (vipMarquee && vipMarquee.style.display !== "block") {
-        // Only show generic marquee if no session customer is set (session customer has correct tag)
-        const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
-        const memberLabel = sessionCust ? (sessionCust.tag === "VIP" ? "VIP Client" : (sessionCust.tag || "Member")) : "Member";
-        const displayName = sessionCust ? sessionCust.name : name;
-        vipMarquee.textContent = `Welcome back, ${memberLabel}: ${displayName} · Access Verified ✦`;
-        vipMarquee.style.display = "block";
+      const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+      if (!sessionCust) {
+        await syncCustomerSession(user, "auto");
+      } else {
+        if (vipMarquee) {
+          const memberLabel = sessionCust.tag === "VIP" || sessionCust.tag === "Loyalty VIP" || sessionCust.tag === "VIP Request" ? "VIP Client" : (sessionCust.tag || "Member");
+          vipMarquee.textContent = `Welcome back, ${memberLabel}: ${sessionCust.name} · Loyalty Balance: ₹${(sessionCust.spend || 0).toLocaleString()} · Current Points: ${sessionCust.points || 0} · Loyalty Account Active ✦`;
+          vipMarquee.style.display = "block";
+        }
+        if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
+        if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
       }
-      
-      if (vipLogoutBtn) vipLogoutBtn.style.display = "none";
     } else {
-      // User is signed out of Firebase Auth
       const activeSessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
       if (activeSessionCust) {
         if (authNavBtn) authNavBtn.textContent = "Sign Out";
+        if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
+        if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
       } else {
         if (authNavBtn) authNavBtn.textContent = "Log In";
+        if (profileNavBtn) profileNavBtn.style.display = "none";
+        if (vipLogoutBtn) vipLogoutBtn.style.display = "none";
         if (nameInput) nameInput.value = "";
         if (phoneInput) phoneInput.value = "";
         if (vipMarquee) vipMarquee.style.display = "none";
@@ -3411,9 +3623,224 @@ window.addEventListener('scroll', () => {
     }
   }
 
+  // ── PROFILE PANEL FUNCTIONS & INTERACTIONS ─────────────────────────────────
+  let profileMap;
+  let profileMarker;
+
+  window.toggleProfileDrawer = () => {
+    const profilePanel = document.getElementById("profile-panel");
+    if (!profilePanel) return;
+    
+    const isActive = profilePanel.classList.toggle("active");
+    if (isActive) {
+      populateProfileForm();
+      const cartPanel = document.getElementById("selection-panel");
+      if (cartPanel) cartPanel.classList.remove("active");
+    }
+  };
+
+  const profileCloseBtn = document.getElementById("profile-close-btn");
+  if (profileCloseBtn) {
+    profileCloseBtn.addEventListener("click", () => {
+      const profilePanel = document.getElementById("profile-panel");
+      if (profilePanel) profilePanel.classList.remove("active");
+    });
+  }
+
+  function populateProfileForm() {
+    const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+    if (!sessionCust) return;
+    
+    document.getElementById("profile-name-input").value = sessionCust.name || "";
+    document.getElementById("profile-phone-input").value = sessionCust.phone || "";
+    document.getElementById("profile-email-input").value = sessionCust.email || "";
+    document.getElementById("profile-address-input").value = sessionCust.address || "";
+    
+    const isVip = sessionCust.tag === "VIP" || sessionCust.tag === "Loyalty VIP" || sessionCust.tag === "VIP Request" || (sessionCust.spend && sessionCust.spend >= 50000);
+    const tierIcon = document.getElementById("profile-tier-icon");
+    const tierLabel = document.getElementById("profile-tier-label");
+    const tierBadge = document.getElementById("profile-vip-badge");
+    const statsSpend = document.getElementById("profile-stats-spend");
+    const statsPoints = document.getElementById("profile-stats-points");
+    
+    if (tierIcon) tierIcon.textContent = isVip ? "👑" : "✦";
+    if (tierLabel) tierLabel.textContent = isVip ? (sessionCust.tag || "VIP Client") : "Regular Member";
+    if (tierBadge) {
+      tierBadge.textContent = `Tier Status: ${isVip ? "VIP Client" : "Regular Member"}`;
+      tierBadge.style.color = isVip ? "var(--gold)" : "var(--ash)";
+    }
+    if (statsSpend) statsSpend.textContent = `Lifetime Spend: ₹${(sessionCust.spend || 0).toLocaleString()}`;
+    if (statsPoints) statsPoints.textContent = `Loyalty Points: ${sessionCust.points || 0}`;
+  }
+
+  window.toggleProfileMap = () => {
+    const mapPanel = document.getElementById("profile-map-panel");
+    if (!mapPanel) return;
+    
+    const isHidden = mapPanel.style.display === "none";
+    if (isHidden) {
+      mapPanel.style.display = "block";
+      initProfileMap();
+    } else {
+      mapPanel.style.display = "none";
+    }
+  };
+
+  function initProfileMap() {
+    if (profileMap) {
+      setTimeout(() => profileMap.invalidateSize(), 50);
+      return;
+    }
+
+    let defaultLoc = [13.0827, 80.2707]; // Chennai default
+    const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+    if (sessionCust && sessionCust.coords && Array.isArray(sessionCust.coords) && sessionCust.coords.length === 2) {
+      defaultLoc = sessionCust.coords;
+    }
+    
+    try {
+      profileMap = L.map("profile-map", {
+        zoomControl: true
+      }).setView(defaultLoc, 13);
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(profileMap);
+
+      const customIcon = L.divIcon({
+        className: 'luxury-delivery-pin',
+        html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #E8C97A; border: 4px solid #0A0906; box-shadow: 0 0 15px rgba(232,201,122,0.6);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+
+      profileMarker = L.marker(defaultLoc, {
+        icon: customIcon,
+        draggable: true
+      }).addTo(profileMap);
+
+      // Drag event
+      profileMarker.on("dragend", function () {
+        const position = profileMarker.getLatLng();
+        reverseGeocodeProfile(position.lat, position.lng);
+      });
+
+      // Map click
+      profileMap.on("click", function (e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        profileMarker.setLatLng([lat, lng]);
+        reverseGeocodeProfile(lat, lng);
+      });
+      
+      setTimeout(() => profileMap.invalidateSize(), 80);
+    } catch (e) {
+      console.warn("Profile map initialization failed:", e);
+    }
+  }
+
+  async function reverseGeocodeProfile(lat, lng) {
+    const addressArea = document.getElementById("profile-address-input");
+    if (!addressArea) return;
+    
+    addressArea.value = `Fetching coordinates [${lat.toFixed(4)}, ${lng.toFixed(4)}]...`;
+    
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+        headers: {
+          'Accept-Language': 'en',
+          'User-Agent': 'SuperMartApp/1.0'
+        }
+      });
+      const data = await res.json();
+      if (data && data.display_name) {
+        addressArea.value = data.display_name;
+      } else {
+        addressArea.value = `SuperMart Delivery Sector: Zone [${lat.toFixed(5)}, ${lng.toFixed(5)}]`;
+      }
+    } catch (err) {
+      console.warn("Geocoding API failed, falling back:", err);
+      addressArea.value = `SuperMart Delivery Sector: Zone [${lat.toFixed(5)}, ${lng.toFixed(5)}]`;
+    }
+  }
+
+  const profileSaveBtn = document.getElementById("profile-save-btn");
+  if (profileSaveBtn) {
+    profileSaveBtn.addEventListener("click", async () => {
+      const name = document.getElementById("profile-name-input").value.trim();
+      const phone = document.getElementById("profile-phone-input").value.trim();
+      const email = document.getElementById("profile-email-input").value.trim();
+      const address = document.getElementById("profile-address-input").value.trim();
+      
+      if (!name || !phone) {
+        showToast("Name and Phone Number are required.");
+        return;
+      }
+      
+      const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
+      if (!sessionCust || !sessionCust.id) {
+        showToast("No active customer session found. Please log in.");
+        return;
+      }
+      
+      profileSaveBtn.disabled = true;
+      profileSaveBtn.textContent = "Saving Profile...";
+      
+      try {
+        let coords = null;
+        if (profileMarker) {
+          const latLng = profileMarker.getLatLng();
+          coords = [latLng.lat, latLng.lng];
+        } else if (sessionCust.coords) {
+          coords = sessionCust.coords;
+        }
+        
+        const updateData = {
+          name: name,
+          phone: phone,
+          email: email,
+          address: address
+        };
+        if (coords) {
+          updateData.coords = coords;
+        }
+        
+        // Update Firestore
+        await updateDoc(doc(db, "customers", sessionCust.id), updateData);
+        
+        // Update sessionStorage
+        const updatedCust = {
+          ...sessionCust,
+          ...updateData
+        };
+        sessionStorage.setItem("supermart_active_customer", JSON.stringify(updatedCust));
+        
+        showToast("Profile details updated successfully!");
+        
+        // Close profile panel
+        const profilePanel = document.getElementById("profile-panel");
+        if (profilePanel) profilePanel.classList.remove("active");
+        
+        // Reload page to refresh all indicators after saving
+        setTimeout(() => window.location.reload(), 1500);
+        
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        showToast("Failed to update profile details. Try again.");
+      } finally {
+        profileSaveBtn.disabled = false;
+        profileSaveBtn.textContent = "Update Profile Details";
+      }
+    });
+  }
+
   // Bind function actions to window scope
   window.flyToBoutique = flyToBoutique;
   window.toggleCheckoutMap = toggleCheckoutMap;
+  window.toggleProfileDrawer = toggleProfileDrawer;
+  window.toggleProfileMap = toggleProfileMap;
 
   // Safe delayed initializations
   setTimeout(initBoutiqueMap, 1500);
