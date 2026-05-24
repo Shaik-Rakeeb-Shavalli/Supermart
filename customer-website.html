@@ -3641,6 +3641,18 @@ window.addEventListener('scroll', () => {
     });
   }
 
+  // Close Profile Panel when clicking outside its bounds
+  document.addEventListener("click", (e) => {
+    const profilePanel = document.getElementById("profile-panel");
+    const profileNavBtn = document.getElementById("profile-nav-btn");
+    
+    if (profilePanel && profilePanel.classList.contains("active")) {
+      if (!profilePanel.contains(e.target) && (!profileNavBtn || !profileNavBtn.contains(e.target))) {
+        profilePanel.classList.remove("active");
+      }
+    }
+  });
+
   function populateProfileForm() {
     const sessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
     if (!sessionCust) return;
