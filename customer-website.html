@@ -1220,7 +1220,6 @@ body::after{
     <li><a href="#drop">Special Offers</a></li>
     <li><a href="#testimonials">Customer Reviews</a></li>
     <li><a href="/index.html" style="color: var(--gold); font-weight: 500;">Portal Home</a></li>
-    <li><a href="#" id="vip-logout-btn" style="color: #ff4d6d; font-weight: 500; display: none; text-shadow: 0 0 8px rgba(255,77,109,0.3)">Logout</a></li>
   </ul>
   <button class="nav-cta" id="profile-nav-btn" style="display: none; background: rgba(201,168,76,0.15); border: 1px solid var(--glass-border); color: var(--gold); margin-right: 0.6rem;" onclick="toggleProfileDrawer()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -2724,7 +2723,6 @@ window.addEventListener('scroll', () => {
   const nameInput = document.getElementById("checkout-name");
   const phoneInput = document.getElementById("checkout-phone");
   const vipMarquee = document.getElementById("vip-marquee");
-  const vipLogoutBtn = document.getElementById("vip-logout-btn");
   const profileNavBtn = document.getElementById("profile-nav-btn");
   const checkoutAddress = document.getElementById("checkout-address");
 
@@ -2733,23 +2731,13 @@ window.addEventListener('scroll', () => {
     if (phoneInput) phoneInput.value = activeCust.phone || "";
     if (checkoutAddress) checkoutAddress.value = activeCust.address || "";
     if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
+    if (authNavBtn) authNavBtn.textContent = "Log Out";
     
     // Show greeting marquee with correct member tier
     if (vipMarquee) {
       const memberLabel = activeCust.tag === "VIP" || activeCust.tag === "Loyalty VIP" || activeCust.tag === "VIP Request" ? "VIP Client" : (activeCust.tag || "Member");
       vipMarquee.textContent = `Welcome back, ${memberLabel}: ${activeCust.name} · Loyalty Balance: ₹${(activeCust.spend || 0).toLocaleString()} · Current Points: ${activeCust.points || 0} · Loyalty Account Active ✦`;
       vipMarquee.style.display = "block";
-    }
-    
-    // Show VIP logout button
-    if (vipLogoutBtn) {
-      vipLogoutBtn.style.display = "inline-block";
-      vipLogoutBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        sessionStorage.removeItem("supermart_active_customer");
-        signOut(auth).catch(() => {});
-        window.location.reload();
-      });
     }
 
     // Dynamic background check to load latest points and spend from Firestore
@@ -2948,7 +2936,7 @@ window.addEventListener('scroll', () => {
         vipMarquee.style.display = "block";
       }
       
-      if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
+      if (authNavBtn) authNavBtn.textContent = "Log Out";
       
       // Close the modal
       if (authModal) authModal.classList.remove("active");
@@ -3065,7 +3053,7 @@ window.addEventListener('scroll', () => {
   // Auth State Listener to sync UI elements
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      if (authNavBtn) authNavBtn.textContent = "Sign Out";
+      if (authNavBtn) authNavBtn.textContent = "Log Out";
       const name = user.displayName || "SuperMart VIP Client";
       const contact = user.phoneNumber || user.email || "Verified";
       
@@ -3082,18 +3070,15 @@ window.addEventListener('scroll', () => {
           vipMarquee.style.display = "block";
         }
         if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
-        if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
       }
     } else {
       const activeSessionCust = JSON.parse(sessionStorage.getItem("supermart_active_customer") || "null");
       if (activeSessionCust) {
-        if (authNavBtn) authNavBtn.textContent = "Sign Out";
+        if (authNavBtn) authNavBtn.textContent = "Log Out";
         if (profileNavBtn) profileNavBtn.style.display = "inline-flex";
-        if (vipLogoutBtn) vipLogoutBtn.style.display = "inline-block";
       } else {
         if (authNavBtn) authNavBtn.textContent = "Log In";
         if (profileNavBtn) profileNavBtn.style.display = "none";
-        if (vipLogoutBtn) vipLogoutBtn.style.display = "none";
         if (nameInput) nameInput.value = "";
         if (phoneInput) phoneInput.value = "";
         if (vipMarquee) vipMarquee.style.display = "none";
