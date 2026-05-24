@@ -4002,7 +4002,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
 
   return (
     <div style={{ minHeight: "100vh", background: colors.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',sans-serif", padding: 24, gap: 24, position: "relative", overflow: "hidden" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tenor+Sans&family=Montserrat:wght@200;300;400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
         #particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
         #cursor{position:fixed;width:20px;height:20px;border:2px solid #6C63FF;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:9999;transition:width .2s,height .2s,background .2s;opacity:0}
@@ -4167,6 +4167,169 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
         .link-btn:hover {
           color: #6C63FF;
         }
+
+        /* ── CUSTOMER PORTAL LUXURY REDESIGN ── */
+        .cust-login-card {
+          width: 100%;
+          max-width: 440px;
+          background: #13110E;
+          border: 1px solid rgba(201,168,76,0.15);
+          border-radius: 24px;
+          padding: 2.8rem 2.4rem;
+          position: relative;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.85), 0 0 40px rgba(201,168,76,0.04);
+          box-sizing: border-box;
+          text-align: center;
+          font-family: 'Montserrat', sans-serif;
+        }
+        .cust-close-btn {
+          position: absolute;
+          top: 1.5rem;
+          right: 1.5rem;
+          background: none;
+          border: none;
+          color: #8C8070;
+          cursor: pointer;
+          font-size: 1.8rem;
+          line-height: 1;
+          transition: color 0.25s, transform 0.25s;
+          padding: 0;
+        }
+        .cust-close-btn:hover {
+          color: #E8C97A;
+          transform: scale(1.1);
+        }
+        .cust-title {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 2.2rem;
+          font-weight: 300;
+          letter-spacing: -0.01em;
+          color: #F7F3EC;
+          margin: 0 0 0.4rem 0;
+        }
+        .cust-subtitle {
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 0.68rem;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #C9A84C;
+          margin: 0 0 2.2rem 0;
+        }
+        .cust-google-btn {
+          width: 100%;
+          padding: 14px;
+          background: transparent;
+          border: 1px solid rgba(201,168,76,0.18);
+          border-radius: 8px;
+          color: #F7F3EC;
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 0.72rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          box-sizing: border-box;
+        }
+        .cust-google-btn:hover {
+          background: rgba(201,168,76,0.08);
+          border-color: #C9A84C;
+          box-shadow: 0 4px 24px rgba(201,168,76,0.18);
+        }
+        .cust-divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #8C8070;
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 0.62rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          margin: 1.8rem 0;
+        }
+        .cust-divider::before, .cust-divider::after {
+          content: "";
+          flex: 1;
+          height: 1px;
+          background: rgba(201,168,76,0.12);
+        }
+        .cust-input-group {
+          margin-bottom: 1.6rem;
+          text-align: left;
+        }
+        .cust-label {
+          display: block;
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 0.62rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #8C8070;
+          margin-bottom: 8px;
+        }
+        .cust-input {
+          width: 100%;
+          padding: 14px;
+          background: rgba(10,9,6,0.6);
+          border: 1px solid rgba(201,168,76,0.18);
+          border-radius: 8px;
+          color: #F7F3EC;
+          font-family: 'Montserrat', sans-serif;
+          font-size: 0.95rem;
+          outline: none;
+          transition: border-color 0.3s;
+          box-sizing: border-box;
+        }
+        .cust-input:focus {
+          border-color: #C9A84C;
+          box-shadow: 0 0 10px rgba(201,168,76,0.15);
+        }
+        .cust-submit-btn {
+          width: 100%;
+          padding: 15px;
+          background: #C9A84C;
+          border: none;
+          border-radius: 8px;
+          color: #0A0906;
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 0.72rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 15px rgba(201,168,76,0.25);
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .cust-submit-btn:hover {
+          background: #E8C97A;
+          box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+        }
+        .cust-submit-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .cust-link-btn {
+          background: none;
+          border: none;
+          color: #8C8070;
+          font-family: 'Tenor Sans', sans-serif;
+          font-size: 11px;
+          cursor: pointer;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          transition: color 0.25s;
+          align-self: center;
+          margin-top: 10px;
+        }
+        .cust-link-btn:hover {
+          color: #C9A84C;
+        }
       `}</style>
 
       {/* PARTICLE CANVAS */}
@@ -4289,102 +4452,115 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
           </div>
         ) : (
           /* ── CUSTOMER PANEL ── */
-          <div style={card}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 16, borderBottom: `1px solid ${colors.border}` }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${colors.success}20`, display: "flex", alignItems: "center", justifyContent: "center" }}><Receipt size={18} color={colors.success} /></div>
-              <div>
-                <p style={{ color: colors.text, fontWeight: 700, fontSize: 16, margin: 0, fontFamily: "'Syne', sans-serif" }}>Customer Portal</p>
-                <p style={{ color: colors.muted, fontSize: 12, margin: 0, fontFamily: "'Inter', sans-serif" }}>Loyalty card & shift history</p>
-              </div>
-            </div>
+          <div className="cust-login-card">
+            {/* CLOSE BUTTON */}
+            <button className="cust-close-btn" onClick={(e) => triggerParticles(e, onBackToLanding)} aria-label="Close portal">
+              &times;
+            </button>
+
+            {/* HEADER BRANDING */}
+            <h2 className="cust-title">Welcome to SuperMart</h2>
+            <p className="cust-subtitle">Gourmet VIP Club Sign In</p>
             
             {phoneStep === 1 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <label style={lbl}>Phone Number</label>
-                  <input 
-                    value={custPhone} 
-                    onChange={e => setCustPhone(e.target.value)} 
-                    placeholder="e.g. +91 98765 43210" 
-                    className="login-input" 
-                    style={{ borderColor: custErr ? colors.danger : "rgba(255,255,255,0.1)" }}
-                    onKeyDown={e => e.key === "Enter" && handlePhoneSendOtp(e)}
-                  />
-                  {custErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
-                </div>
-                <button onClick={(e) => triggerParticles(e, () => handlePhoneSendOtp(e))} disabled={custLoading} className="login-btn">
-                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Sending SMS…</> : "Access Loyalty Portal"}
-                </button>
-                
-                <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 0", color: colors.muted, fontSize: 11, fontFamily: "'Inter', sans-serif" }}>
-                  <div style={{ flex: 1, height: 1, background: colors.border }} />
-                  <span>or continue with</span>
-                  <div style={{ flex: 1, height: 1, background: colors.border }} />
-                </div>
-                
+                {/* GOOGLE SIGN IN BUTTON */}
                 <button 
                   onClick={(e) => triggerParticles(e, handleGoogleSignIn)} 
                   disabled={custLoading} 
-                  className="cashier-card" 
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: `1px solid ${colors.border}`, color: colors.text, cursor: "pointer" }}
+                  className="cust-google-btn"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                   </svg>
-                  Sign in with Google
+                  Continue with Google
+                </button>
+                
+                {/* DIVIDER */}
+                <div className="cust-divider">or use your phone</div>
+                
+                {/* PHONE INPUT */}
+                <div className="cust-input-group">
+                  <label className="cust-label">Phone Number</label>
+                  <input 
+                    value={custPhone} 
+                    onChange={e => setCustPhone(e.target.value)} 
+                    placeholder="+91 99999 99999" 
+                    className="cust-input" 
+                    style={{ borderColor: custErr ? "#FF5555" : "rgba(201,168,76,0.18)" }}
+                    onKeyDown={e => e.key === "Enter" && handlePhoneSendOtp(e)}
+                  />
+                  {custErr && <p style={{ color: "#FF5555", fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
+                </div>
+                
+                <button 
+                  onClick={(e) => triggerParticles(e, () => handlePhoneSendOtp(e))} 
+                  disabled={custLoading} 
+                  className="cust-submit-btn"
+                >
+                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Sending SMS…</> : "Send Access Code"}
                 </button>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <label style={lbl}>Verification Code</label>
+                {/* OTP INPUT */}
+                <div className="cust-input-group">
+                  <label className="cust-label">One-Time Access Code</label>
                   <input 
                     value={otpCode} 
                     onChange={e => setOtpCode(e.target.value)} 
                     placeholder="Enter 6-digit access code" 
-                    className="login-input" 
+                    className="cust-input" 
                     maxLength={6}
-                    style={{ borderColor: custErr ? colors.danger : "rgba(255,255,255,0.1)", textAlign: "center", fontSize: 18, letterSpacing: 4 }}
+                    style={{ borderColor: custErr ? "#FF5555" : "rgba(201,168,76,0.18)", textAlign: "center", fontSize: 18, letterSpacing: 4 }}
                     onKeyDown={e => e.key === "Enter" && handlePhoneVerifyOtp(e)}
                   />
-                  {custErr && <p style={{ color: colors.danger, fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
+                  {custErr && <p style={{ color: "#FF5555", fontSize: 12, marginTop: 6, fontFamily: "'Inter', sans-serif" }}>{custErr}</p>}
                 </div>
-                <button onClick={(e) => triggerParticles(e, () => handlePhoneVerifyOtp(e))} disabled={custLoading} className="login-btn">
+                
+                <button 
+                  onClick={(e) => triggerParticles(e, () => handlePhoneVerifyOtp(e))} 
+                  disabled={custLoading} 
+                  className="cust-submit-btn"
+                >
                   {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Verifying…</> : "Verify Access Code"}
                 </button>
+                
                 <button 
                   onClick={() => { setPhoneStep(1); setOtpCode(""); setCustErr(""); }} 
-                  className="link-btn" 
-                  style={{ alignSelf: "center", color: colors.muted }}
+                  className="cust-link-btn"
                 >
                   ← Back to phone input
                 </button>
               </div>
             )}
             
-            <div id="recaptcha-container"></div>
+            <div id="recaptcha-container" style={{ marginTop: 12, display: "flex", justifyContent: "center" }}></div>
             
-            <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: 14 }}>
-              <p style={{ ...lbl, marginBottom: 8 }}>Or Select Quick Demo Profile</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 130, overflowY: "auto", paddingRight: 4 }}>
-                {customers.length === 0 && <p style={{ color: colors.muted, fontSize: 12, fontFamily: "'Inter', sans-serif", textAlign: "center" }}>No registered loyalty members.</p>}
+            {/* COLLAPSIBLE UAT TEST PROFILES */}
+            <details style={{ marginTop: 18, borderTop: "1px solid rgba(201,168,76,0.12)", paddingTop: 12, textAlign: "left" }}>
+              <summary style={{ color: "#8C8070", fontSize: 11, cursor: "pointer", fontFamily: "'Tenor Sans', sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", outline: "none" }}>
+                Quick Demo Accounts
+              </summary>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 120, overflowY: "auto", marginTop: 10, paddingRight: 4 }}>
+                {customers.length === 0 && <p style={{ color: "#8C8070", fontSize: 11, fontFamily: "'Inter', sans-serif", textAlign: "center" }}>No registered loyalty members.</p>}
                 {customers.map(c => (
-                  <button key={c.id || c.phone} onClick={(e) => triggerParticles(e, () => { setCustPhone(c.phone || ""); setCustErr(""); }, true)} className="cashier-card" style={{ padding: "8px 12px" }}>
-                    <div style={{ width: 30, height: 30, borderRadius: 8, background: `${colors.success}18`, display: "flex", alignItems: "center", justifyContent: "center", color: colors.success, fontSize: 13, fontWeight: 800, flexShrink: 0, fontFamily: "'Syne', sans-serif" }}>{c.name ? c.name[0] : "C"}</div>
+                  <button key={c.id || c.phone} onClick={(e) => triggerParticles(e, () => { setCustPhone(c.phone || ""); setCustErr(""); }, true)} className="cashier-card" style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(201,168,76,0.1)" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(201,168,76,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontSize: 12, fontWeight: 800, flexShrink: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{c.name ? c.name[0] : "C"}</div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ color: colors.text, fontSize: 13, fontWeight: 700, margin: 0, fontFamily: "'Syne', sans-serif" }}>{c.name}</p>
-                      <p style={{ color: colors.muted, fontSize: 11, margin: "1px 0 0", fontFamily: "'Inter', sans-serif" }}>{c.phone}</p>
+                      <p style={{ color: "#F7F3EC", fontSize: 12, fontWeight: 700, margin: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{c.name}</p>
+                      <p style={{ color: "#8C8070", fontSize: 11, margin: "1px 0 0", fontFamily: "'Inter', sans-serif" }}>{c.phone}</p>
                     </div>
-                    <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: c.tag === "VIP" ? "#6C63FF18" : "#8F8FA318", color: c.tag === "VIP" ? "#6C63FF" : "#8F8FA3", flexShrink: 0, fontFamily: "'Syne', sans-serif" }}>
+                    <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: c.tag === "VIP" ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)", color: c.tag === "VIP" ? "#C9A84C" : "#8C8070", flexShrink: 0 }}>
                       {c.tag || "Regular"}
                     </span>
                   </button>
                 ))}
               </div>
-            </div>
+            </details>
           </div>
         )}
 
