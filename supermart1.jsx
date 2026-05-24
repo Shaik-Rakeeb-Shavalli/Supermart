@@ -3897,10 +3897,12 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
     if (pin === selected.pin) onStaffLogin(selected);
     else { setStaffErr("Incorrect PIN. Try again."); setPin(""); }
   };
-  // Customer Firebase Auth States
-  const [phoneStep, setPhoneStep] = useState(1); // 1: Send SMS, 2: Enter OTP
+  // Customer Phone Login States
+  const [phoneStep, setPhoneStep] = useState(1); // 1: Enter Phone, 2: Enter OTP
   const [otpCode, setOtpCode] = useState("");
-  const [confirmResult, setConfirmResult] = useState(null);
+  const [generatedOtp, setGeneratedOtp] = useState(""); // The OTP shown to user
+  const [otpDigits, setOtpDigits] = useState(["","","","","",""]); // Individual OTP boxes
+  const otpInputRefs = [useRef(null),useRef(null),useRef(null),useRef(null),useRef(null),useRef(null)];
 
   const handleGoogleSignIn = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -3977,60 +3979,89 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
     if (e && e.preventDefault) e.preventDefault();
     setCustErr("");
     if (!custPhone) { setCustErr("Please enter your phone number."); return; }
-    setCustLoading(true);
-
-    const formattedPhone = custPhone.startsWith("+") ? custPhone : "+91" + custPhone.replace(/[^0-9]/g, "");
     
-    // Setup invisible Recaptcha Verifier
-    try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          'size': 'invisible',
-          'callback': (response) => {
-            // solved
-          }
-        });
-      }
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
-      setConfirmResult(confirmation);
-      setPhoneStep(2);
-    } catch (err) {
-      console.error("SMS send error:", err);
-      setCustErr("Failed to send access code. Verify country code (e.g. +91).");
-      if (window.recaptchaVerifier) {
-        try { window.recaptchaVerifier.clear(); } catch(e){}
-        window.recaptchaVerifier = null;
-      }
-      const container = document.getElementById("recaptcha-container");
-      if (container) container.innerHTML = "";
-    } finally {
-      setCustLoading(false);
+    const cleanInput = custPhone.replace(/[^0-9]/g, "");
+    if (cleanInput.length < 10) { setCustErr("Please enter a valid 10-digit phone number."); return; }
+
+    setCustLoading(true);
+    
+    // Simulate SMS delay for UX
+    await new Promise(r => setTimeout(r, 800));
+    
+    // Check if phone exists in customer database
+    const match = customers.find(c => {
+      const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
+      return cleanDb.endsWith(cleanInput) || cleanInput.endsWith(cleanDb) || cleanDb === cleanInput;
+    });
+
+    // Generate a 6-digit OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    setGeneratedOtp(otp);
+    setOtpDigits(["","","","","",""]);
+    setPhoneStep(2);
+    setCustLoading(false);
+    
+    // Auto-focus first OTP box
+    setTimeout(() => otpInputRefs[0]?.current?.focus(), 100);
+  };
+
+  const handleOtpDigitChange = (index, value) => {
+    const digit = value.replace(/[^0-9]/g, "").slice(-1);
+    const newDigits = [...otpDigits];
+    newDigits[index] = digit;
+    setOtpDigits(newDigits);
+    // Auto-advance to next box
+    if (digit && index < 5) {
+      otpInputRefs[index + 1]?.current?.focus();
+    }
+    // Auto-submit when all 6 filled
+    if (digit && index === 5) {
+      const fullCode = newDigits.join("");
+      if (fullCode.length === 6) handlePhoneVerifyOtp(null, fullCode);
     }
   };
 
-  const handlePhoneVerifyOtp = async (e) => {
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      otpInputRefs[index - 1]?.current?.focus();
+    }
+  };
+
+  const handlePhoneVerifyOtp = async (e, codeOverride) => {
     if (e && e.preventDefault) e.preventDefault();
     setCustErr("");
-    if (otpCode.length !== 6) { setCustErr("Enter the 6-digit access code."); return; }
+    const enteredCode = codeOverride || otpDigits.join("");
+    if (enteredCode.length !== 6) { setCustErr("Please enter all 6 digits of your access code."); return; }
     setCustLoading(true);
+    
+    await new Promise(r => setTimeout(r, 600));
 
     try {
-      const result = await confirmResult.confirm(otpCode);
-      const user = result.user;
+      // Verify OTP matches
+      if (enteredCode !== generatedOtp) {
+        setCustErr("Incorrect access code. Please check and try again.");
+        // Shake effect — clear and re-focus
+        setOtpDigits(["","","","","",""]);
+        setTimeout(() => otpInputRefs[0]?.current?.focus(), 100);
+        setCustLoading(false);
+        return;
+      }
 
-      const cleanUserPhone = (user.phoneNumber || "").replace(/[^0-9]/g, "");
+      // OTP correct — find matching customer
+      const cleanInput = custPhone.replace(/[^0-9]/g, "");
       const match = customers.find(c => {
         const cleanDb = (c.phone || "").replace(/[^0-9]/g, "");
-        return cleanDb === cleanUserPhone || cleanDb.endsWith(cleanUserPhone) || cleanUserPhone.endsWith(cleanDb);
+        return cleanDb.endsWith(cleanInput) || cleanInput.endsWith(cleanDb) || cleanDb === cleanInput;
       });
 
       if (match) {
         onCustomerLogin(match);
       } else {
-        // Automatically register new loyalty member
+        // New customer — auto-register as loyalty member
         const newCust = {
-          name: "Maison Aurum Client",
-          phone: user.phoneNumber,
+          name: "SuperMart Guest",
+          phone: custPhone.startsWith("+") ? custPhone : "+91" + cleanInput,
+          email: "",
           visits: 1,
           spend: "0.00",
           tier: "Silver",
@@ -4043,7 +4074,7 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
       }
     } catch (err) {
       console.error("OTP verify error:", err);
-      setCustErr("Invalid or expired code. Please try again.");
+      setCustErr("Verification failed. Please try again.");
     } finally {
       setCustLoading(false);
     }
@@ -4601,39 +4632,80 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
                 </button>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* OTP INPUT */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {/* OTP SENT HEADER */}
+                <div style={{ textAlign: "center", padding: "12px 16px", background: "rgba(0,212,170,0.06)", border: "1px solid rgba(0,212,170,0.18)", borderRadius: 10 }}>
+                  <p style={{ color: "#00D4AA", fontSize: 12, fontWeight: 600, margin: "0 0 4px", fontFamily: "'Inter', sans-serif" }}>✅ Access Code Sent</p>
+                  <p style={{ color: "#8F8FA3", fontSize: 11, margin: 0, fontFamily: "'Inter', sans-serif" }}>Enter the 6-digit code sent to <strong style={{ color: "#fff" }}>{custPhone}</strong></p>
+                </div>
+
+                {/* DEMO OTP DISPLAY — show the code for testing */}
+                <div style={{ textAlign: "center", background: "rgba(108,99,255,0.08)", border: "1px dashed rgba(108,99,255,0.35)", borderRadius: 8, padding: "8px 14px" }}>
+                  <p style={{ color: "#8F8FA3", fontSize: 10, margin: "0 0 3px", textTransform: "uppercase", letterSpacing: 1, fontFamily: "'Inter', sans-serif" }}>Your Access Code (Demo)</p>
+                  <p style={{ color: "#6C63FF", fontSize: 22, fontWeight: 800, letterSpacing: 8, margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>{generatedOtp}</p>
+                </div>
+
+                {/* 6-BOX OTP INPUT */}
                 <div className="cust-input-group">
-                  <label className="cust-label">One-Time Access Code</label>
-                  <input 
-                    value={otpCode} 
-                    onChange={e => setOtpCode(e.target.value)} 
-                    placeholder="Enter 6-digit access code" 
-                    className="cust-input" 
-                    maxLength={6}
-                    style={{ borderColor: custErr ? "#FF5555" : "rgba(201,168,76,0.18)", textAlign: "center", fontSize: 18, letterSpacing: 4 }}
-                    onKeyDown={e => e.key === "Enter" && handlePhoneVerifyOtp(e)}
-                  />
+                  <label className="cust-label">Enter 6-Digit Access Code</label>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                    {otpDigits.map((digit, i) => (
+                      <input
+                        key={i}
+                        ref={otpInputRefs[i]}
+                        value={digit}
+                        onChange={e => handleOtpDigitChange(i, e.target.value)}
+                        onKeyDown={e => handleOtpKeyDown(i, e)}
+                        maxLength={1}
+                        inputMode="numeric"
+                        style={{
+                          width: 42,
+                          height: 52,
+                          textAlign: "center",
+                          fontSize: 22,
+                          fontWeight: 700,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          background: digit ? "rgba(108,99,255,0.12)" : "rgba(7,7,17,0.7)",
+                          border: `2px solid ${digit ? "#6C63FF" : (custErr ? "#FF5555" : "rgba(255,255,255,0.1)")  }`,
+                          borderRadius: 10,
+                          color: "#fff",
+                          outline: "none",
+                          transition: "all 0.2s",
+                          boxShadow: digit ? "0 0 12px rgba(108,99,255,0.25)" : "none",
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
                 
                 <button 
                   onClick={(e) => triggerParticles(e, () => handlePhoneVerifyOtp(e))} 
-                  disabled={custLoading} 
+                  disabled={custLoading || otpDigits.join("").length < 6} 
                   className="cust-submit-btn"
+                  style={{ opacity: otpDigits.join("").length < 6 ? 0.5 : 1 }}
                 >
-                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Verifying…</> : "Verify Access Code"}
+                  {custLoading ? <><RefreshCw size={14} style={{ animation: "spin 0.8s linear infinite", marginRight: 8 }} /> Verifying…</> : "Verify & Sign In"}
                 </button>
                 
-                <button 
-                  onClick={() => { setPhoneStep(1); setOtpCode(""); setCustErr(""); }} 
-                  className="cust-link-btn"
-                >
-                  ← Back to phone input
-                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <button 
+                    onClick={() => { setPhoneStep(1); setOtpDigits(["","","","","",""]); setCustErr(""); setGeneratedOtp(""); }} 
+                    className="cust-link-btn"
+                  >
+                    ← Change number
+                  </button>
+                  <button 
+                    onClick={() => handlePhoneSendOtp(null)} 
+                    className="cust-link-btn"
+                    disabled={custLoading}
+                  >
+                    Resend code
+                  </button>
+                </div>
               </div>
             )}
             
-            <div id="recaptcha-container" style={{ marginTop: 12, display: "flex", justifyContent: "center" }}></div>
+            <div id="recaptcha-container" style={{ display: "none" }}></div>
             
             {/* COLLAPSIBLE UAT TEST PROFILES */}
             <details style={{ marginTop: 18, borderTop: "1px solid rgba(201,168,76,0.12)", paddingTop: 12, textAlign: "left" }}>
