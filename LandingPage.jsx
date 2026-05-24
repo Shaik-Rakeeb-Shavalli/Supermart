@@ -159,57 +159,29 @@ export default function LandingPage({ onGetStarted }) {
 
     // ── CUSTOM CURSOR ──
     const cursor = document.getElementById("cursor");
-    let mx = 0,
-      my = 0;
-    const trails = [];
-    for (let i = 0; i < 8; i++) {
-      const t = document.createElement("div");
-      t.className = "trail-dot";
-      const s = 8 - i;
-      t.style.cssText = `width:${s}px;height:${s}px;background:rgba(201,168,76,${
-        0.6 - i * 0.07
-      });`;
-      document.body.appendChild(t);
-      trails.push({ el: t, x: 0, y: 0 });
-    }
-    const trailHistory = [];
+    const cursorRing = document.getElementById("cursor-ring");
+    let mx = 0, my = 0, rx = 0, ry = 0;
     const onMouseMove = (e) => {
       mx = e.clientX;
       my = e.clientY;
+    };
+    document.addEventListener("mousemove", onMouseMove);
+
+    let cursorAnimId;
+    function animateCursor() {
+      rx = rx + (mx - rx) * 0.14;
+      ry = ry + (my - ry) * 0.14;
       if (cursor) {
         cursor.style.left = mx + "px";
         cursor.style.top = my + "px";
       }
-      trailHistory.unshift({ x: mx, y: my });
-      if (trailHistory.length > 20) trailHistory.pop();
-    };
-    document.addEventListener("mousemove", onMouseMove);
-
-    let trailAnimId;
-    function animTrail() {
-      trails.forEach((t, i) => {
-        const h = trailHistory[Math.min(i * 2, trailHistory.length - 1)] || {
-          x: 0,
-          y: 0,
-        };
-        t.x += (h.x - t.x) * 0.3;
-        t.y += (h.y - t.y) * 0.3;
-        t.el.style.left = t.x + "px";
-        t.el.style.top = t.y + "px";
-      });
-      trailAnimId = requestAnimationFrame(animTrail);
+      if (cursorRing) {
+        cursorRing.style.left = rx + "px";
+        cursorRing.style.top = ry + "px";
+      }
+      cursorAnimId = requestAnimationFrame(animateCursor);
     }
-    animTrail();
-
-    const hoverableSelector =
-      "a,button,.feat-card,.pain-card,.testi-card,.pricing-card";
-    const hoverables = document.querySelectorAll(hoverableSelector);
-    const addBigCursor = () => cursor && cursor.classList.add("big");
-    const removeBigCursor = () => cursor && cursor.classList.remove("big");
-    hoverables.forEach((el) => {
-      el.addEventListener("mouseenter", addBigCursor);
-      el.addEventListener("mouseleave", removeBigCursor);
-    });
+    animateCursor();
 
     // ── SCROLL PROGRESS ──
     const onScroll = () => {
@@ -508,21 +480,15 @@ export default function LandingPage({ onGetStarted }) {
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mousemove", onMouseMoveParallax);
       window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(trailAnimId);
+      cancelAnimationFrame(cursorAnimId);
       if (canvasAnimId) cancelAnimationFrame(canvasAnimId);
       io.disconnect();
       aiObs.disconnect();
       ctaObs.disconnect();
-      hoverables.forEach((el) => {
-        el.removeEventListener("mouseenter", addBigCursor);
-        el.removeEventListener("mouseleave", removeBigCursor);
-      });
       magneticBtns.forEach((btn) => {
         btn.removeEventListener("mousemove", onMagneticMove(btn));
         btn.removeEventListener("mouseleave", onMagneticLeave(btn));
       });
-      // Remove cursor trail dots added to body
-      document.querySelectorAll(".trail-dot").forEach((d) => d.remove());
     };
   }, []);
 
@@ -597,8 +563,8 @@ export default function LandingPage({ onGetStarted }) {
       top:${clickY}px;
       width:12px;
       height:12px;
-      border:2px solid #00D4AA;
-      background:rgba(0, 212, 170, 0.15);
+      border:2px solid #C9A84C;
+      background:rgba(201, 168, 76, 0.15);
       border-radius:50%;
       pointer-events:none;
       z-index:9999;
@@ -673,10 +639,53 @@ export default function LandingPage({ onGetStarted }) {
             outline: none;
           }
 
-          /* ── CURSOR ── */
-          #cursor{position:fixed;width:10px;height:10px;background:var(--alt);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .15s;mix-blend-mode:difference}
-          #cursor.big{width:36px;height:36px;background:transparent;border:2px solid var(--alt)}
-          .trail-dot{position:fixed;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%)}
+          /* ── CUSTOM CURSOR ── */
+          #cursor {
+            position: fixed;
+            z-index: 99999;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            width: 10px;
+            height: 10px;
+            background: var(--text);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width .3s cubic-bezier(0.16, 1, 0.3, 1), height .3s cubic-bezier(0.16, 1, 0.3, 1), opacity .3s, background .3s;
+          }
+          #cursor-ring {
+            position: fixed;
+            z-index: 99998;
+            pointer-events: none;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(201, 168, 76, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform .12s cubic-bezier(0.25, 0.46, 0.45, 0.94), width .4s cubic-bezier(0.16, 1, 0.3, 1), height .4s cubic-bezier(0.16, 1, 0.3, 1), border-color .3s, opacity .3s;
+          }
+          
+          #landing-page-root:has(a:hover) #cursor,
+          #landing-page-root:has(button:hover) #cursor,
+          #landing-page-root:has(.feat-card:hover) #cursor,
+          #landing-page-root:has(.pain-card:hover) #cursor,
+          #landing-page-root:has(.testi-card:hover) #cursor,
+          #landing-page-root:has(.pricing-card:hover) #cursor {
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+          }
+          
+          #landing-page-root:has(a:hover) #cursor-ring,
+          #landing-page-root:has(button:hover) #cursor-ring,
+          #landing-page-root:has(.feat-card:hover) #cursor-ring,
+          #landing-page-root:has(.pain-card:hover) #cursor-ring,
+          #landing-page-root:has(.testi-card:hover) #cursor-ring,
+          #landing-page-root:has(.pricing-card:hover) #cursor-ring {
+            width: 56px;
+            height: 56px;
+            border-color: var(--accent);
+            opacity: 0.5;
+          }
 
           /* ── SCROLL PROGRESS ── */
           #scroll-progress{
@@ -745,7 +754,7 @@ export default function LandingPage({ onGetStarted }) {
             position: absolute;
             width: 150px;
             height: 150px;
-            background: radial-gradient(circle, rgba(0, 212, 170, 0.12) 0%, rgba(0, 212, 170, 0) 70%);
+            background: radial-gradient(circle, rgba(232, 201, 122, 0.12) 0%, rgba(232, 201, 122, 0) 70%);
             border-radius: 50%;
             filter: blur(20px);
           }
@@ -794,7 +803,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--accent);
             --max-opacity: 0.25;
             --drift: -35px;
-            filter: drop-shadow(0 0 10px rgba(108, 99, 255, 0.6)) blur(2px);
+            filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.6)) blur(2px);
             animation: floatUp 22s linear infinite;
             animation-delay: 0s;
             transform: scale(0.85);
@@ -804,7 +813,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--alt);
             --max-opacity: 0.2;
             --drift: 45px;
-            filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.5)) blur(4px);
+            filter: drop-shadow(0 0 8px rgba(232, 201, 122, 0.5)) blur(4px);
             animation: floatUp 28s linear infinite;
             animation-delay: -5s;
             transform: scale(0.65);
@@ -814,7 +823,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--accent);
             --max-opacity: 0.22;
             --drift: -25px;
-            filter: drop-shadow(0 0 10px rgba(108, 99, 255, 0.5)) blur(1px);
+            filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.5)) blur(1px);
             animation: floatUp 25s linear infinite;
             animation-delay: -12s;
             transform: scale(0.75);
@@ -824,7 +833,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--alt);
             --max-opacity: 0.18;
             --drift: 30px;
-            filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.4)) blur(5px);
+            filter: drop-shadow(0 0 8px rgba(232, 201, 122, 0.4)) blur(5px);
             animation: floatUp 32s linear infinite;
             animation-delay: -2s;
             transform: scale(0.55);
@@ -834,7 +843,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--accent);
             --max-opacity: 0.25;
             --drift: -40px;
-            filter: drop-shadow(0 0 12px rgba(108, 99, 255, 0.6)) blur(0px);
+            filter: drop-shadow(0 0 12px rgba(201, 168, 76, 0.6)) blur(0px);
             animation: floatUp 19s linear infinite;
             animation-delay: -8s;
             transform: scale(0.95);
@@ -844,7 +853,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--alt);
             --max-opacity: 0.2;
             --drift: 35px;
-            filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.5)) blur(3px);
+            filter: drop-shadow(0 0 8px rgba(232, 201, 122, 0.5)) blur(3px);
             animation: floatUp 26s linear infinite;
             animation-delay: -15s;
             transform: scale(0.7);
@@ -854,7 +863,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--accent);
             --max-opacity: 0.22;
             --drift: 40px;
-            filter: drop-shadow(0 0 10px rgba(108, 99, 255, 0.5)) blur(2px);
+            filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.5)) blur(2px);
             animation: floatUp 24s linear infinite;
             animation-delay: -18s;
             transform: scale(0.8);
@@ -864,7 +873,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--alt);
             --max-opacity: 0.25;
             --drift: -30px;
-            filter: drop-shadow(0 0 10px rgba(0, 212, 170, 0.6)) blur(1px);
+            filter: drop-shadow(0 0 10px rgba(232, 201, 122, 0.6)) blur(1px);
             animation: floatUp 20s linear infinite;
             animation-delay: -6s;
             transform: scale(0.9);
@@ -874,7 +883,7 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--accent);
             --max-opacity: 0.15;
             --drift: 50px;
-            filter: drop-shadow(0 0 6px rgba(108, 99, 255, 0.4)) blur(6px);
+            filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.4)) blur(6px);
             animation: floatUp 35s linear infinite;
             animation-delay: -10s;
             transform: scale(0.5);
@@ -884,12 +893,12 @@ export default function LandingPage({ onGetStarted }) {
             color: var(--alt);
             --max-opacity: 0.23;
             --drift: -35px;
-            filter: drop-shadow(0 0 12px rgba(0, 212, 170, 0.5)) blur(1.5px);
+            filter: drop-shadow(0 0 12px rgba(232, 201, 122, 0.5)) blur(1.5px);
             animation: floatUp 23s linear infinite;
             animation-delay: -3s;
             transform: scale(0.85);
           }
-
+ 
           .load-logo {
             font-family: 'Syne', sans-serif;
             font-size: 2.5rem;
@@ -900,12 +909,12 @@ export default function LandingPage({ onGetStarted }) {
             align-items: center;
             gap: .75rem;
             z-index: 2;
-            text-shadow: 0 0 40px rgba(108,99,255,0.4);
+            text-shadow: 0 0 40px rgba(201, 168, 76, 0.4);
           }
           .load-logo span {
             color: var(--accent);
           }
-
+ 
           /* Loading Card Container with Blur Glow */
           .loading-card-wrap {
             position: relative;
@@ -916,14 +925,14 @@ export default function LandingPage({ onGetStarted }) {
           .loading-card-glow {
             position: absolute;
             inset: -20px;
-            background: radial-gradient(circle, rgba(108, 99, 255, 0.15) 0%, rgba(0, 212, 170, 0.05) 50%, transparent 100%);
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.15) 0%, rgba(232, 201, 122, 0.05) 50%, transparent 100%);
             filter: blur(30px);
             z-index: -1;
             pointer-events: none;
           }
           .loading-glass-card {
-            background: rgba(15, 15, 26, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(26, 22, 16, 0.6);
+            border: 1px solid rgba(201, 168, 76, 0.18);
             border-radius: 1.25rem;
             padding: 3rem 2.5rem;
             backdrop-filter: blur(25px);
@@ -967,12 +976,12 @@ export default function LandingPage({ onGetStarted }) {
             animation: walkBounce 0.55s ease-in-out infinite alternate;
             transform-origin: bottom center;
             mix-blend-mode: screen;
-            filter: brightness(1.15) drop-shadow(0 8px 24px rgba(108, 99, 255, 0.5));
+            filter: brightness(1.15) drop-shadow(0 8px 24px rgba(201, 168, 76, 0.5));
           }
           .loading-character-shadow {
             width: 100px;
             height: 8px;
-            background: radial-gradient(ellipse, rgba(0, 212, 170, 0.5) 0%, transparent 75%);
+            background: radial-gradient(ellipse, rgba(232, 201, 122, 0.5) 0%, transparent 75%);
             border-radius: 50%;
             filter: blur(3px);
             margin-top: 4px;
@@ -1027,7 +1036,7 @@ export default function LandingPage({ onGetStarted }) {
             background: linear-gradient(90deg, var(--accent), var(--alt));
             border-radius: 4px;
             transition: width 0.1s linear;
-            box-shadow: 0 0 12px rgba(108, 99, 255, 0.5);
+            box-shadow: 0 0 12px rgba(201, 168, 76, 0.5);
           }
           .loading-progress-tip-glow {
             position: absolute;
@@ -1035,10 +1044,10 @@ export default function LandingPage({ onGetStarted }) {
             transform: translate(-50%, -50%);
             width: 16px;
             height: 16px;
-            background: #00d4aa;
+            background: var(--alt);
             border-radius: 50%;
             filter: blur(4px);
-            box-shadow: 0 0 10px #00d4aa, 0 0 20px #6c63ff;
+            box-shadow: 0 0 10px var(--alt), 0 0 20px var(--accent);
             pointer-events: none;
             transition: left 0.1s linear;
           }
@@ -1105,14 +1114,14 @@ export default function LandingPage({ onGetStarted }) {
           .nav-cta{
             background:#07070F;color:#fff;font-size:.8rem;font-weight:600;
             padding:.45rem 1.1rem;border-radius:6px;text-decoration:none;
-            border:1px solid rgba(108,99,255,0.4);
-            box-shadow:0 4px 15px rgba(108,99,255,0.25);
+            border:1px solid rgba(201,168,76,0.4);
+            box-shadow:0 4px 15px rgba(201,168,76,0.25);
             transition:background .2s,box-shadow .2s,border-color .2s,transform .2s;
           }
           .nav-cta:hover{
-            background:rgba(108,99,255,0.15);
-            border-color:rgba(108,99,255,0.8);
-            box-shadow:0 0 20px rgba(108,99,255,.55);
+            background:rgba(201,168,76,0.15);
+            border-color:rgba(201,168,76,0.8);
+            box-shadow:0 0 20px rgba(201,168,76,.55);
             transform:translateY(-1px);
           }
 
@@ -1130,7 +1139,7 @@ export default function LandingPage({ onGetStarted }) {
           .hero-orb.v{width:600px;height:600px;background:var(--accent);top:-200px;left:-100px;animation:orbDrift 12s ease-in-out infinite}
           .hero-orb.m{width:400px;height:400px;background:var(--alt);bottom:-150px;right:-80px;animation:orbDrift 15s ease-in-out infinite reverse}
           @keyframes orbDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
-          .float-debris{position:absolute;pointer-events:none;font-size:1rem;color:rgba(108,99,255,.25);animation:debris var(--dur,20s) linear infinite;font-family:var(--mono)}
+          .float-debris{position:absolute;pointer-events:none;font-size:1rem;color:rgba(201,168,76,.25);animation:debris var(--dur,20s) linear infinite;font-family:var(--mono)}
           @keyframes debris{0%{transform:translate(0,0) rotate(0deg);opacity:.1}50%{opacity:.3}100%{transform:translate(var(--dx,20px),var(--dy,-400px)) rotate(var(--dr,180deg));opacity:0}}
 
           .hero-eyebrow{font-family:var(--mono);font-size:.7rem;color:var(--alt);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;opacity:0;animation:fadeUp .6s .5s ease forwards}
@@ -1146,7 +1155,7 @@ export default function LandingPage({ onGetStarted }) {
             background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
             padding:1.2rem 1.5rem;max-width:500px;width:100%;text-align:left;
             font-family:var(--mono);font-size:.75rem;margin:0 auto 2.5rem;
-            box-shadow:0 0 40px rgba(108,99,255,.12);
+            box-shadow:0 0 40px rgba(201, 168, 76, .12);
             opacity:0;animation:fadeUp .7s 1.5s ease forwards;
           }
           .ht-line{margin-bottom:.3rem;color:var(--muted)}
@@ -1159,16 +1168,16 @@ export default function LandingPage({ onGetStarted }) {
           .btn-primary{
             background:#07070F;color:#fff;font-weight:600;font-size:.9rem;
             padding:.75rem 1.8rem;border-radius:8px;text-decoration:none;
-            border:1px solid rgba(108,99,255,0.4);
+            border:1px solid rgba(201,168,76,0.4);
             animation:levitate 3s ease-in-out infinite;
-            box-shadow:0 4px 20px rgba(108,99,255,0.3);
+            box-shadow:0 4px 20px rgba(201,168,76,0.3);
             transition:background .2s,box-shadow .2s,border-color .2s,transform .2s;
             cursor: pointer;
           }
           .btn-primary:hover{
-            background:rgba(108,99,255,0.15);
-            border-color:rgba(108,99,255,0.8);
-            box-shadow:0 6px 30px rgba(108,99,255,.65);
+            background:rgba(201,168,76,0.15);
+            border-color:rgba(201,168,76,0.8);
+            box-shadow:0 6px 30px rgba(201,168,76,.65);
             transform:translateY(-1px);
           }
           .btn-ghost{
@@ -1181,7 +1190,7 @@ export default function LandingPage({ onGetStarted }) {
           }
           .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
           @keyframes levitate{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-          @keyframes ghostPulse{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0)}50%{box-shadow:0 0 20px rgba(108,99,255,.2)}}
+          @keyframes ghostPulse{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px rgba(201,168,76,.2)}}
 
           /* ── REVEAL ANIMATIONS ── */
           .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
@@ -1260,7 +1269,7 @@ export default function LandingPage({ onGetStarted }) {
           .dash-wrap{
             position:relative;display:inline-block;margin-top:3rem;
             animation:dashFloat 6s ease-in-out infinite;
-            filter:drop-shadow(0 0 60px rgba(108,99,255,.25));
+            filter:drop-shadow(0 0 60px rgba(201,168,76,.25));
             max-width:900px;width:100%;
           }
           @keyframes dashFloat{0%,100%{transform:perspective(1200px) rotateX(4deg) rotateY(-3deg)}50%{transform:perspective(1200px) rotateX(2deg) rotateY(3deg)}}
@@ -1274,7 +1283,7 @@ export default function LandingPage({ onGetStarted }) {
           .dash-title-bar{font-size:.65rem;color:var(--muted);margin-left:.5rem}
           .dash-body{display:flex}
           .dash-sidebar{
-            width:140px;background:rgba(15,15,26,.8);padding:1rem .75rem;
+            width:140px;background:rgba(26,22,16,.8);padding:1rem .75rem;
             border-right:1px solid var(--border);display:flex;flex-direction:column;gap:.4rem;
             flex-shrink:0;
           }
@@ -1282,7 +1291,7 @@ export default function LandingPage({ onGetStarted }) {
             padding:.4rem .6rem;border-radius:6px;font-size:.65rem;color:var(--muted);
             display:flex;align-items:center;gap:.4rem;
           }
-          .dash-nav-item.active{background:rgba(108,99,255,.15);color:var(--accent)}
+          .dash-nav-item.active{background:rgba(201,168,76,.15);color:var(--accent)}
           .dash-main{flex:1;padding:1rem;min-height:260px}
           .dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.8rem}
           .kpi-card{
@@ -1303,7 +1312,7 @@ export default function LandingPage({ onGetStarted }) {
             color:var(--accent);white-space:nowrap;
             animation:annPulse 2.5s ease-in-out infinite;
           }
-          @keyframes annPulse{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0)}50%{box-shadow:0 0 12px rgba(108,99,255,.4)}}
+          @keyframes annPulse{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 12px rgba(201,168,76,.4)}}
           .ann-arrow{color:var(--accent);font-size:.8rem}
           .dash-caption{margin-top:2rem;color:var(--muted);font-family:var(--mono);font-size:.8rem}
 
@@ -1313,7 +1322,7 @@ export default function LandingPage({ onGetStarted }) {
           }
           #ai-spot::before{
             content: ''; position: absolute; inset: 0; pointer-events: none;
-            background-image: radial-gradient(circle at 1px 1px,rgba(108,99,255,.08) 1px,transparent 0);
+            background-image: radial-gradient(circle at 1px 1px,rgba(201,168,76,.08) 1px,transparent 0);
             background-size: 32px 32px;
           }
           .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
@@ -1323,7 +1332,7 @@ export default function LandingPage({ onGetStarted }) {
             animation:aiGlow 3s ease-in-out infinite;
             position:relative;
           }
-          @keyframes aiGlow{0%,100%{box-shadow:0 0 0 rgba(108,99,255,0),0 0 30px rgba(108,99,255,.08)}50%{box-shadow:0 0 20px rgba(108,99,255,.25),0 0 50px rgba(108,99,255,.12)}}
+          @keyframes aiGlow{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0),0 0 30px rgba(201,168,76,.08)}50%{box-shadow:0 0 20px rgba(201,168,76,.25),0 0 50px rgba(201,168,76,.12)}}
           .ai-header{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
           .ai-badge{font-size:.6rem;color:var(--bg);background:var(--alt);padding:.2rem .5rem;border-radius:4px;font-weight:600}
           .ai-body{color:var(--text);line-height:1.8}
@@ -1336,18 +1345,18 @@ export default function LandingPage({ onGetStarted }) {
           .badge{display:inline-block;font-size:.55rem;padding:.15rem .4rem;border-radius:4px;font-weight:600}
           .badge.high{background:rgba(255,77,109,.15);color:var(--danger)}
           .badge.med{background:rgba(255,181,71,.15);color:var(--warn)}
-          .badge.low{background:rgba(0,212,170,.15);color:var(--alt)}
+          .badge.low{background:rgba(232,201,122,.15);color:var(--alt)}
           .ai-headline{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem}
 
           /* ── STATS ── */
           #stats{
-            background:linear-gradient(135deg,rgba(108,99,255,.06),rgba(0,212,170,.04));
+            background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(232,201,122,.04));
             border-top:1px solid var(--border);border-bottom:1px solid var(--border);
           }
           .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center}
           .stat-item{padding:2rem 1rem;position:relative}
           .stat-number{font-family:var(--mono);font-size:clamp(2rem,4vw,3rem);font-weight:600;color:var(--text);display:block;position:relative}
-          .stat-number::after{content:'';position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.1),transparent 70%);pointer-events:none}
+          .stat-number::after{content:'';position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.1),transparent 70%);pointer-events:none}
           .stat-label{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;margin-top:.5rem}
           .stat-sublabel{font-size:.7rem;color:var(--muted);opacity:.6;margin-top:.2rem}
 
@@ -1379,7 +1388,7 @@ export default function LandingPage({ onGetStarted }) {
           .pricing-card:hover{transform:scale(1.03);box-shadow:0 20px 60px rgba(0,0,0,.5)}
           .pricing-card.featured{
             border-color:var(--accent);
-            box-shadow:0 0 40px rgba(108,99,255,.15);
+            box-shadow:0 0 40px rgba(201,168,76,.15);
             transform:translateY(-10px);
           }
           .pricing-card.featured:hover{transform:translateY(-16px) scale(1.02)}
@@ -1398,7 +1407,7 @@ export default function LandingPage({ onGetStarted }) {
           .plan-feature::before{content:'✓';color:var(--alt);font-weight:700;flex-shrink:0}
           .plan-btn{display:block;width:100%;text-align:center;padding:.65rem;border-radius:8px;font-size:.85rem;font-weight:600;text-decoration:none;margin-top:1.5rem;transition:background .2s,box-shadow .2s;cursor:pointer}
           .plan-btn.primary{background:var(--accent);color:#fff}
-          .plan-btn.primary:hover{box-shadow:0 0 25px rgba(108,99,255,.5)}
+          .plan-btn.primary:hover{box-shadow:0 0 25px rgba(201,168,76,.5)}
           .plan-btn.ghost{border:1px solid var(--border);color:var(--muted)}
           .plan-btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
 
@@ -1411,7 +1420,7 @@ export default function LandingPage({ onGetStarted }) {
             background:var(--surf);border:1px solid var(--border);border-radius:.75rem;
             padding:2rem;max-width:600px;margin:2rem auto;text-align:left;
             font-family:var(--mono);font-size:.8rem;
-            box-shadow:0 0 60px rgba(108,99,255,.15);
+            box-shadow:0 0 60px rgba(201,168,76,.15);
           }
           .cta-line{color:var(--muted);margin-bottom:.4rem}
           .cta-line .ok{color:var(--alt)}
@@ -1421,12 +1430,12 @@ export default function LandingPage({ onGetStarted }) {
             display:inline-block;background:var(--accent);color:#fff;font-size:1rem;font-weight:700;
             padding:1rem 2.5rem;border-radius:10px;text-decoration:none;
             animation:levitate 3s ease-in-out infinite;
-            box-shadow:0 8px 40px rgba(108,99,255,.4);
+            box-shadow:0 8px 40px rgba(201,168,76,.4);
             transition:box-shadow .2s;border:none;
             position:relative;overflow:hidden;
             cursor:pointer;
           }
-          .cta-btn:hover{box-shadow:0 12px 60px rgba(108,99,255,.7)}
+          .cta-btn:hover{box-shadow:0 12px 60px rgba(201,168,76,.7)}
 
           /* ── NAV DROPDOWN MENU ── */
           .nav-dropdown-menu {
@@ -1434,14 +1443,14 @@ export default function LandingPage({ onGetStarted }) {
             top: calc(100% + 12px);
             right: 0;
             width: 280px;
-            background: rgba(15, 15, 26, 0.95);
+            background: rgba(26, 22, 16, 0.95);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 8px;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(108, 99, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(201, 168, 76, 0.1);
             backdrop-filter: blur(20px);
             z-index: 10000;
             animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1469,12 +1478,12 @@ export default function LandingPage({ onGetStarted }) {
           .nav-dropdown-item.admin:hover {
             border-left: 3px solid var(--accent);
             padding-left: 11px;
-            background: rgba(108, 99, 255, 0.05);
+            background: rgba(201, 168, 76, 0.05);
           }
           .nav-dropdown-item.staff:hover {
             border-left: 3px solid var(--alt);
             padding-left: 11px;
-            background: rgba(0, 212, 170, 0.05);
+            background: rgba(232, 201, 122, 0.05);
           }
           .nav-dropdown-item.customer:hover {
             border-left: 3px solid var(--warn);
@@ -1537,11 +1546,11 @@ export default function LandingPage({ onGetStarted }) {
           .login-card:hover {
             transform: translateY(-8px);
             border-color: var(--accent);
-            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(201, 168, 76, 0.15);
           }
           .login-card.staff:hover {
             border-color: var(--alt);
-            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.15);
+            box-shadow: 0 10px 30px rgba(232, 201, 122, 0.15);
           }
           .login-card.customer:hover {
             border-color: var(--warn);
@@ -1589,13 +1598,13 @@ export default function LandingPage({ onGetStarted }) {
             background: var(--accent);
             border-color: var(--accent);
             color: white;
-            box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+            box-shadow: 0 0 15px rgba(201, 168, 76, 0.4);
           }
           .login-card.staff .login-card-btn:hover {
             background: var(--alt);
             border-color: var(--alt);
             color: black;
-            box-shadow: 0 0 15px rgba(0, 212, 170, 0.4);
+            box-shadow: 0 0 15px rgba(232, 201, 122, 0.4);
           }
           .login-card.customer .login-card-btn:hover {
             background: var(--warn);
@@ -1648,7 +1657,7 @@ export default function LandingPage({ onGetStarted }) {
           .mobile-menu-cta{
             background:var(--accent);color:#fff!important;font-size:1.1rem!important;
             padding:.65rem 2rem;border-radius:8px;
-            box-shadow:0 0 30px rgba(108,99,255,.4);
+            box-shadow:0 0 30px rgba(201,168,76,.4);
           }
           .mobile-menu-cta::after{display:none!important}
           @media(max-width:768px){
@@ -1675,8 +1684,8 @@ export default function LandingPage({ onGetStarted }) {
           .toggle-switch input:checked + .toggle-slider{background:linear-gradient(90deg,var(--accent),var(--alt))}
           .toggle-switch input:checked + .toggle-slider::before{transform:translateX(24px)}
           .save-badge{
-            font-family:var(--mono);font-size:.6rem;background:rgba(0,212,170,.15);
-            color:var(--alt);border:1px solid rgba(0,212,170,.3);border-radius:4px;
+            font-family:var(--mono);font-size:.6rem;background:rgba(232, 201, 122, .15);
+            color:var(--alt);border:1px solid rgba(232, 201, 122, .3);border-radius:4px;
             padding:.2rem .5rem;opacity:0;transition:opacity .3s;
           }
           .save-badge.visible{opacity:1}
@@ -1685,15 +1694,15 @@ export default function LandingPage({ onGetStarted }) {
           .float-chips{position:absolute;pointer-events:none;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:0}
           .chip{
             position:absolute;font-family:var(--mono);font-size:.65rem;
-            border:1px solid rgba(108,99,255,.3);border-radius:20px;
-            padding:.2rem .6rem;color:rgba(108,99,255,.5);
+            border:1px solid rgba(201, 168, 76, .3);border-radius:20px;
+            padding:.2rem .6rem;color:rgba(201, 168, 76, .5);
             animation:chipFloat var(--dur2,18s) ease-in-out infinite var(--del,0s);
           }
           @keyframes chipFloat{0%,100%{transform:translate(0,0)}25%{transform:translate(10px,-15px)}50%{transform:translate(-5px,-30px)}75%{transform:translate(8px,-20px)}}
 
           /* ── SOCIAL PROOF BAR ── */
           .social-bar{
-            background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);
+            background:rgba(201, 168, 76, .06);border:1px solid rgba(201, 168, 76, .15);
             border-radius:.5rem;padding:.75rem 1.5rem;display:flex;align-items:center;
             justify-content:center;gap:2rem;flex-wrap:wrap;margin:0 auto 3rem;max-width:700px;
             font-family:var(--mono);font-size:.7rem;color:var(--muted);
@@ -1865,6 +1874,7 @@ export default function LandingPage({ onGetStarted }) {
 
       {/* CUSTOM CURSOR */}
       <div id="cursor"></div>
+      <div id="cursor-ring"></div>
 
       {/* SCROLL PROGRESS */}
       <div id="scroll-progress">

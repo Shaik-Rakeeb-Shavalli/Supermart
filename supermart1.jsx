@@ -4502,7 +4502,6 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
                 {adminLoading ? <><Spinner /> Signing in…</> : "Sign In to Dashboard"}
               </button>
             </div>
-            <p style={{ color: colors.muted, fontSize: 11, textAlign: "center", margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>admin@supermart.in &nbsp;·&nbsp; Rakhib@123</p>
           </div>
         ) : type === "staff" ? (
           /* ── STAFF / POS PANEL ── */
@@ -4706,28 +4705,6 @@ const LoginPage = ({ type, onAdminLogin, onStaffLogin, onCustomerLogin, onBackTo
             )}
             
             <div id="recaptcha-container" style={{ display: "none" }}></div>
-            
-            {/* COLLAPSIBLE UAT TEST PROFILES */}
-            <details style={{ marginTop: 18, borderTop: "1px solid rgba(201,168,76,0.12)", paddingTop: 12, textAlign: "left" }}>
-              <summary style={{ color: "#8C8070", fontSize: 11, cursor: "pointer", fontFamily: "'Tenor Sans', sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", outline: "none" }}>
-                Quick Demo Accounts
-              </summary>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 120, overflowY: "auto", marginTop: 10, paddingRight: 4 }}>
-                {customers.length === 0 && <p style={{ color: "#8C8070", fontSize: 11, fontFamily: "'Inter', sans-serif", textAlign: "center" }}>No registered loyalty members.</p>}
-                {customers.map(c => (
-                  <button key={c.id || c.phone} onClick={(e) => triggerParticles(e, () => { setCustPhone(c.phone || ""); setCustErr(""); }, true)} className="cashier-card" style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(201,168,76,0.1)" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(201,168,76,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontSize: 12, fontWeight: 800, flexShrink: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{c.name ? c.name[0] : "C"}</div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ color: "#F7F3EC", fontSize: 12, fontWeight: 700, margin: 0, fontFamily: "'Tenor Sans', sans-serif" }}>{c.name}</p>
-                      <p style={{ color: "#8C8070", fontSize: 11, margin: "1px 0 0", fontFamily: "'Inter', sans-serif" }}>{c.phone}</p>
-                    </div>
-                    <span style={{ fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: c.tag === "VIP" ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)", color: c.tag === "VIP" ? "#C9A84C" : "#8C8070", flexShrink: 0 }}>
-                      {c.tag || "Regular"}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </details>
           </div>
         )}
 
