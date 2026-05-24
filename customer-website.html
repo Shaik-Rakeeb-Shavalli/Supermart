@@ -277,62 +277,147 @@ section{position:relative;z-index:2}
 .section-title em{font-style:italic;color:var(--gold)}
 
 /* ── PRODUCT SHOWCASE ───────────────────────────────────────────────── */
-#showcase{padding:8rem 4rem}
-.showcase-header{margin-bottom:5rem}
-.showcase-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  grid-template-rows:auto auto;
-  gap:1.5px;
-}
-.product-card{
-  position:relative;overflow:hidden;background:var(--ink);
-  cursor:none;
-}
-.product-card:nth-child(1){grid-column:1/2;grid-row:1/3;aspect-ratio:2/3}
-.product-card:nth-child(2){grid-column:2/3;grid-row:1/2;aspect-ratio:3/2}
-.product-card:nth-child(3){grid-column:3/4;grid-row:1/2;aspect-ratio:3/2}
-.product-card:nth-child(4){grid-column:2/4;grid-row:2/3;aspect-ratio:5/2}
+#showcase{padding:6rem 4rem}
+.showcase-header{margin-bottom:3rem}
 
-.product-img{
+/* Category Browse Grid (default view — 1 per category) */
+.cat-browse-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:18px;
+}
+.cat-browse-card{
+  position:relative;overflow:hidden;border-radius:14px;
+  cursor:pointer;aspect-ratio:4/3;background:var(--ink);
+  border:1px solid rgba(201,168,76,.12);
+  transition:transform .35s var(--ease-silk),box-shadow .35s;
+}
+.cat-browse-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.cat-browse-card .cat-img{
   width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .9s var(--ease-silk),filter .6s;
-  filter:sepia(10%) brightness(.92) contrast(1.05);
+  filter:brightness(.82) saturate(1.1);
 }
-.product-card:hover .product-img{transform:scale(1.06);filter:sepia(5%) brightness(1) contrast(1.08)}
-.product-overlay{
+.cat-browse-card:hover .cat-img{transform:scale(1.08);filter:brightness(.95) saturate(1.2)}
+.cat-browse-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to top, rgba(10,9,6,.9) 0%, rgba(10,9,6,.1) 55%, transparent 100%);
+  background:linear-gradient(to top,rgba(10,9,6,.88) 0%,rgba(10,9,6,.1) 60%,transparent 100%);
   display:flex;flex-direction:column;justify-content:flex-end;
-  padding:2rem;
+  padding:1.2rem 1.4rem;
 }
-.product-tag{
-  font-family:var(--f-label);font-size:.55rem;letter-spacing:.28em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:.5rem;
+.cat-browse-label{
+  font-family:var(--f-label);font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.3rem;
 }
-.product-name{
-  font-family:var(--f-display);font-size:clamp(1.4rem,2.5vw,2.2rem);
-  font-weight:300;line-height:1.15;margin-bottom:.5rem;
+.cat-browse-name{
+  font-family:var(--f-display);font-size:1.15rem;font-weight:300;line-height:1.2;
+  margin-bottom:.25rem;
 }
-.product-price{
-  font-family:var(--f-label);font-size:.7rem;letter-spacing:.15em;color:var(--ash);
-  display:flex;align-items:center;gap:.8rem;
+.cat-browse-price{
+  font-family:var(--f-label);font-size:.62rem;letter-spacing:.1em;color:var(--ash);
 }
-.product-price span{color:var(--gold-light)}
-.product-add{
-  position:absolute;top:1.5rem;right:1.5rem;
-  width:44px;height:44px;
-  background:rgba(10,9,6,.7);backdrop-filter:blur(12px);
+.cat-browse-price span{color:var(--gold-light)}
+.cat-browse-badge{
+  position:absolute;top:12px;right:12px;
+  background:rgba(10,9,6,.7);backdrop-filter:blur(10px);
+  border:1px solid var(--glass-border);border-radius:20px;
+  padding:4px 12px;
+  font-family:var(--f-label);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);pointer-events:none;
+}
+
+/* Product List View (filtered by category) */
+#cat-filter-bar{
+  display:none;align-items:center;gap:14px;margin-bottom:2.5rem;
+  flex-wrap:wrap;
+}
+#cat-filter-bar.visible{display:flex}
+#cat-back-btn{
+  background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);
+  border-radius:24px;padding:8px 18px;
+  font-family:var(--f-label);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);cursor:pointer;transition:background .2s;
+}
+#cat-back-btn:hover{background:rgba(201,168,76,.22)}
+#cat-filter-title{
+  font-family:var(--f-display);font-size:1.5rem;font-weight:300;
+  color:var(--parchment);
+}
+#cat-count-badge{
+  background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.2);
+  border-radius:20px;padding:4px 14px;
+  font-family:var(--f-label);font-size:.58rem;letter-spacing:.16em;color:var(--gold);
+}
+
+/* Product cards in filtered view */
+.prod-list-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:18px;
+}
+.prod-list-card{
+  position:relative;overflow:hidden;border-radius:14px;
+  cursor:pointer;background:var(--ink);
+  border:1px solid rgba(201,168,76,.1);
+  transition:transform .3s var(--ease-silk),box-shadow .3s;
+  display:flex;flex-direction:column;
+}
+.prod-list-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.prod-list-img{
+  width:100%;aspect-ratio:1/1;object-fit:cover;display:block;
+  transition:transform .6s var(--ease-silk),filter .4s;
+  filter:brightness(.88) saturate(1.1);
+}
+.prod-list-card:hover .prod-list-img{transform:scale(1.07);filter:brightness(.98) saturate(1.2)}
+.prod-list-info{
+  padding:1rem 1.1rem 1.2rem;
+  display:flex;flex-direction:column;gap:6px;flex:1;
+}
+.prod-list-cat{
+  font-family:var(--f-label);font-size:.52rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);
+}
+.prod-list-name{
+  font-family:var(--f-display);font-size:1rem;font-weight:300;line-height:1.3;
+  color:var(--parchment);
+}
+.prod-list-price{
+  font-family:var(--f-label);font-size:.68rem;letter-spacing:.1em;color:var(--gold-light);
+  margin-top:auto;padding-top:6px;
+}
+.prod-list-add{
+  position:absolute;top:10px;right:10px;
+  width:38px;height:38px;
+  background:rgba(10,9,6,.72);backdrop-filter:blur(10px);
   border:1px solid var(--glass-border);
+  border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  opacity:0;transform:translateY(-8px);
-  transition:opacity .3s,transform .3s var(--ease-sharp),background .2s;
-  cursor:none;
+  opacity:0;transform:translateY(-6px);
+  transition:opacity .25s,transform .25s var(--ease-sharp),background .2s;
+  cursor:pointer;
 }
+.prod-list-add svg{stroke:var(--gold);fill:none;pointer-events:none}
+.prod-list-card:hover .prod-list-add{opacity:1;transform:translateY(0)}
+.prod-list-add:hover{background:var(--gold)}
+.prod-list-add:hover svg{stroke:var(--obsidian)}
+
+/* Loading skeleton */
+.showcase-skeleton{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;
+}
+.skel-card{
+  aspect-ratio:4/3;border-radius:14px;
+  background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite linear;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* fade-in animation */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.cat-browse-card,.prod-list-card{animation:fadeSlideUp .45s ease both}
+
 .product-add svg{stroke:var(--gold);fill:none}
-.product-card:hover .product-add{opacity:1;transform:translateY(0)}
-.product-add:hover{background:var(--gold)}
-.product-add:hover svg{stroke:var(--obsidian)}
 
 /* ── LIQUID GLASS DIVIDER ───────────────────────────────────────────── */
 .glass-divider{
@@ -727,60 +812,31 @@ body::after{
 <!-- ── PRODUCT SHOWCASE ──────────────────────────────────────────────── -->
 <section id="showcase">
   <div class="showcase-header reveal">
-    <div class="section-eyebrow">The Pantry</div>
-    <h2 class="section-title">Selected Gourmet<br><em>Reserve Delicacies</em></h2>
+    <div class="section-eyebrow">Our Aisles</div>
+    <h2 class="section-title">Shop by <em>Category</em></h2>
+    <p style="color:var(--ash);font-family:var(--f-body);font-size:.95rem;margin-top:.8rem;max-width:500px">
+      Tap any category to browse all products. Fresh stock, great prices.
+    </p>
   </div>
-  <div class="showcase-grid">
 
-    <div class="product-card reveal-left">
-      <img class="product-img" src="https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=700&q=85&auto=format&fit=crop" alt="White Truffle Oil">
-      <div class="product-overlay">
-        <div class="product-tag">Infusions</div>
-        <div class="product-name">White Alba<br>Truffle Oil</div>
-        <div class="product-price">From <span>₹ 4,500</span></div>
-      </div>
-      <button class="product-add" aria-label="Add to selection">
-        <svg width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-    </div>
-
-    <div class="product-card reveal">
-      <img class="product-img" src="https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=700&q=85&auto=format&fit=crop" alt="Artisanal Aged Cheese">
-      <div class="product-overlay">
-        <div class="product-tag">Charcuterie & Cheese</div>
-        <div class="product-name">Aged Parmigiano<br>Reggiano</div>
-        <div class="product-price">From <span>₹ 3,200</span></div>
-      </div>
-      <button class="product-add" aria-label="Add to selection">
-        <svg width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-    </div>
-
-    <div class="product-card reveal" style="transition-delay:.1s">
-      <img class="product-img" src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=700&q=85&auto=format&fit=crop" alt="Single-Origin Reserve Coffee">
-      <div class="product-overlay">
-        <div class="product-tag">Limited Coffee Reserve</div>
-        <div class="product-name">Single-Origin<br>Kopi Luwak</div>
-        <div class="product-price">From <span>₹ 8,500</span></div>
-      </div>
-      <button class="product-add" aria-label="Add to selection">
-        <svg width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-    </div>
-
-    <div class="product-card reveal" style="transition-delay:.2s">
-      <img class="product-img" src="https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=1000&q=85&auto=format&fit=crop" alt="Gourmet Caviar">
-      <div class="product-overlay">
-        <div class="product-tag">Delicacies</div>
-        <div class="product-name">Gourmet Beluga Caviar</div>
-        <div class="product-price">From <span>₹ 45,000</span></div>
-      </div>
-      <button class="product-add" aria-label="Add to selection">
-        <svg width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-    </div>
-
+  <!-- Filter bar: shown when a category is selected -->
+  <div id="cat-filter-bar">
+    <button id="cat-back-btn" onclick="showAllCategories()">&#8592; All Categories</button>
+    <span id="cat-filter-title">Category</span>
+    <span id="cat-count-badge">0 Products</span>
   </div>
+
+  <!-- Loading skeleton -->
+  <div id="showcase-skeleton" class="showcase-skeleton">
+    <div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>
+    <div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>
+  </div>
+
+  <!-- Category cards: one per category (default view) -->
+  <div id="cat-browse-grid" class="cat-browse-grid" style="display:none"></div>
+
+  <!-- Product list: all products for the selected category -->
+  <div id="prod-list-grid" class="prod-list-grid" style="display:none"></div>
 </section>
 
 <!-- ── STORY SECTION ─────────────────────────────────────────────────── -->
@@ -1701,6 +1757,119 @@ window.addEventListener('scroll', () => {
     return list[idx % list.length];
   };
 
+  // ── DYNAMIC CATEGORY BROWSER ─────────────────────────────────────────────
+  let allProducts = [];  // holds every product from Firestore
+
+  const skeletonEl    = document.getElementById("showcase-skeleton");
+  const catGrid       = document.getElementById("cat-browse-grid");
+  const prodGrid      = document.getElementById("prod-list-grid");
+  const filterBar     = document.getElementById("cat-filter-bar");
+  const filterTitle   = document.getElementById("cat-filter-title");
+  const countBadge    = document.getElementById("cat-count-badge");
+
+  function makePlusIcon() {
+    return `<svg width="15" height="15" viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  }
+
+  // Render one card per category (default view)
+  function renderCategories(products) {
+    // Group by category, take first product as thumbnail
+    const catMap = {};
+    products.forEach(p => {
+      if (!catMap[p.cat]) catMap[p.cat] = { product: p, count: 0 };
+      catMap[p.cat].count++;
+    });
+
+    catGrid.innerHTML = "";
+    const cats = Object.entries(catMap);
+    cats.forEach(([catName, { product, count }], i) => {
+      const imgSrc = product.img || getFallbackImage(catName, i);
+      const card = document.createElement("div");
+      card.className = "cat-browse-card";
+      card.style.animationDelay = `${i * 0.045}s`;
+      card.innerHTML = `
+        <img class="cat-img" src="${imgSrc}" alt="${catName}" loading="lazy"
+          onerror="this.src='${getFallbackImage(catName, i)}'">
+        <div class="cat-browse-overlay">
+          <div class="cat-browse-label">Category</div>
+          <div class="cat-browse-name">${catName}</div>
+          <div class="cat-browse-price"><span>${count} product${count > 1 ? "s" : ""}</span> available</div>
+        </div>
+        <div class="cat-browse-badge">Browse ›</div>
+      `;
+      card.addEventListener("click", () => showCategory(catName));
+      catGrid.appendChild(card);
+    });
+
+    skeletonEl.style.display = "none";
+    catGrid.style.display = "grid";
+    filterBar.classList.remove("visible");
+  }
+
+  // Render all products for a clicked category
+  function showCategory(catName) {
+    const filtered = allProducts.filter(p => p.cat === catName);
+
+    prodGrid.innerHTML = "";
+    filtered.forEach((p, i) => {
+      const imgSrc = p.img || getFallbackImage(p.cat, i);
+      const card = document.createElement("div");
+      card.className = "prod-list-card";
+      card.style.animationDelay = `${i * 0.04}s`;
+      const safeId   = (p.id || "").replace(/['"]/g, "");
+      const safeName = (p.name || "").replace(/['"]/g, "&apos;");
+      const safeImg  = (imgSrc || "").replace(/['"]/g, "");
+      const safePrice = Number(p.price) || 0;
+      card.innerHTML = `
+        <img class="prod-list-img" src="${imgSrc}" alt="${p.name}" loading="lazy"
+          onerror="this.src='${getFallbackImage(p.cat, i)}'">
+        <div class="prod-list-info">
+          <div class="prod-list-cat">${p.cat}</div>
+          <div class="prod-list-name">${p.name}</div>
+          <div class="prod-list-price">₹ ${safePrice.toLocaleString("en-IN")}</div>
+        </div>
+        <button class="prod-list-add" aria-label="Add to cart"
+          onclick="event.stopPropagation();addToCart('${safeId}','${safeName}',${safePrice},'${safeImg}')">
+          ${makePlusIcon()}
+        </button>
+      `;
+      prodGrid.appendChild(card);
+    });
+
+    catGrid.style.display = "none";
+    prodGrid.style.display = "grid";
+    filterBar.classList.add("visible");
+    filterTitle.textContent = catName;
+    countBadge.textContent = `${filtered.length} Product${filtered.length !== 1 ? "s" : ""}`;
+
+    // Smooth scroll to showcase section
+    document.getElementById("showcase").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Go back to category view
+  window.showAllCategories = () => {
+    prodGrid.style.display = "none";
+    catGrid.style.display = "grid";
+    filterBar.classList.remove("visible");
+  };
+
+  // Load all products from Firestore once
+  onSnapshot(collection(db, "products"), snap => {
+    allProducts = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(p => p.status !== "inactive");
+
+    if (allProducts.length > 0) {
+      renderCategories(allProducts);
+    } else {
+      skeletonEl.style.display = "none";
+      catGrid.innerHTML = `<p style="color:var(--ash);font-family:var(--f-body);padding:2rem 0">
+        No products available yet. Check back soon!
+      </p>`;
+      catGrid.style.display = "block";
+    }
+  });
+
   // Update Cart Drawer List
   function updateCartUI() {
     const listEl = document.getElementById("panel-items-list");
@@ -2405,3 +2574,4 @@ window.addEventListener('scroll', () => {
 </script>
 </body>
 </html>
+
